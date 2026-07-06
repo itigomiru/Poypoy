@@ -1,0 +1,38 @@
+﻿//---------------------------------------------------------------------------
+//!	@file	Result.cpp
+//! @brief	Result
+//---------------------------------------------------------------------------
+#include "Result.h"
+
+namespace PoyPoy
+{
+	//! @brief 初期化
+	//! @return 初期化済み
+	bool Result::Init()
+	{
+		__super::Init();
+		// 最初に1回動作する
+		// ただし trueを返さなければ Initに何回も来る仕様。
+		Scene::Object::Create<Object>("MainCamera")->AddComponent<ComponentCamera>();
+		return true;
+	}
+
+	void Result::Update()
+	{
+		__super::Update();
+		// 毎フレーム動作する
+	}
+
+	void Result::Draw()
+	{
+		__super::Draw();
+		// 毎フレーム動作する
+	}
+
+	void Result::GUI()
+	{
+		__super::GUI();
+		// 毎フレーム動作する
+	}
+
+}	 // namespace PoyPoy
