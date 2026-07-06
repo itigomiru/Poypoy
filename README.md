@@ -28,5 +28,5 @@
 コミット時は必ず名前を記入すること。
 Ex)里/～～～を変更。
 
-ブランチはfeature/develop/taskid_task_nameの形で切ること。
-Ex)feature/develop/a00001_player_throw
+ブランチはfeature/develop/#taskid_task_nameの形で切ること。
+Ex)feature/develop/#a00001_player_throw
