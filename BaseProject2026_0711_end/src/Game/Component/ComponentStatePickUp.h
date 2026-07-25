@@ -3,12 +3,12 @@
 #include <Game/Component/ComponentState.h>
 #include <Game/PoyPoy_Bullet.h>
 
-USING_PTR(ComponentStateThrow);
+USING_PTR(ComponentStatePickUp);
 
-class ComponentStateThrow : public ComponentState
+class ComponentStatePickUp : public ComponentState
 {
 public:
-    BP_COMPONENT_DECL(ComponentStateThrow, u8"投げる");
+    BP_COMPONENT_DECL(ComponentStatePickUp, u8"持ち上げる");
 
     void Init() override;
 
@@ -31,4 +31,4 @@ private:
     CEREAL_SAVELOAD(arc, ver) { arc(cereal::make_nvp("Component", cereal::base_class<Component>(this))); }
 };
 
-CEREAL_CLASS_VERSION(ComponentStateThrow, 1);
+CEREAL_CLASS_VERSION(ComponentStatePickUp, 1);

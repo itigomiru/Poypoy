@@ -8,7 +8,7 @@
 #include "InGame.h"
 #include "Component/ComponentStateIdleWalk.h"
 #include "Component/ComponentCameraController.h"
-#include "Component/ComponentStateThrow.h"
+#include "Component/ComponentStatePickUp.h"
 #include "Component/ComponentPlayerState.h"
 
 namespace PoyPoy {

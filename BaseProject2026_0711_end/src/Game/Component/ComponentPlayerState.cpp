@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <Game/Component/ComponentPlayerState.h>
 #include "ComponentStateIdleWalk.h"
-#include "ComponentStateThrow.h"
+#include "ComponentStatePickUp.h"
 
 void ComponentPlayerState::Init()
 {
@@ -23,7 +23,7 @@ void ComponentPlayerState::Update()
 
     if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
         if(IsState<ComponentStateIdleWalk>()) {
-            ChangeState<ComponentStateThrow>();
+            ChangeState<ComponentStatePickUp>();
         }
     }
 }
