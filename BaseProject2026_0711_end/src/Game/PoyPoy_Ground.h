@@ -4,16 +4,15 @@
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
 
-namespace PoyPoy
+namespace PoyPoy {
+USING_PTR(Ground);
+class Ground : public Object
 {
-	USING_PTR(Ground);
-	class Ground : public Object
-	{
-	public:
-		BP_OBJECT_DECL(Ground, "PoyPoy::Ground");
+public:
+    BP_OBJECT_DECL(Ground, "PoyPoy::Ground");
 
-		//! @brief 初期化
-		//! @return 初期化終了
-		bool Init() override;
-	};
-}	 // namespace PoyPoy
+    //! @brief 初期化
+    //! @return 初期化終了
+    bool Init() override;
+};
+}    // namespace PoyPoy

@@ -5,53 +5,51 @@
 
 void ComponentPlayerState::Init()
 {
-	__super::Init();
+    __super::Init();
 
-	GetOwner()->AddComponent<ComponentStateIdleWalk>()	  //
-		->SetMoveSpeed(0.3f)							  //
-		->SetRotateSpeed(20.0f);
+    GetOwner()
+        ->AddComponent<ComponentStateIdleWalk>()    //
+        ->SetMoveSpeed(0.3f)                        //
+        ->SetRotateSpeed(20.0f);
 }
 
 void ComponentPlayerState::Update()
 {
-	__super::Update();
+    __super::Update();
 
-	auto owner = GetOwner();
+    auto owner = GetOwner();
 
-	//! 今の状態を把握して状態を変えたい
+    //! 今の状態を把握して状態を変えたい
 
-	if(Input::IsKeyDown(KEY_INPUT_SPACE))
-	{
-		if(IsState<ComponentStateIdleWalk>())
-		{
-			ChangeState<ComponentStateThrow>();
-		}
-	}
+    if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
+        if(IsState<ComponentStateIdleWalk>()) {
+            ChangeState<ComponentStateThrow>();
+        }
+    }
 }
 
 void ComponentPlayerState::GUI()
 {
-	__super::GUI();
+    __super::GUI();
 
-	// GUI内に出現させる
-	ImGui::Begin(GetOwner()->GetName().data());
-	{
-		ImGui::Separator();
-		if(ImGui::TreeNode("Player State"))
-		{
-			// 有効/無効
-			bool enable = GetStatus(StatusBit::Enable);
-			if(ImGui::Checkbox(u8"有効", &enable))
-				SetStatus(StatusBit::Enable, enable);
+    // GUI内に出現させる
+    ImGui::Begin(GetOwner()->GetName().data());
+    {
+        ImGui::Separator();
+        if(ImGui::TreeNode("Player State")) {
+            // 有効/無効
+            bool enable = GetStatus(StatusBit::Enable);
+            if(ImGui::Checkbox(u8"有効", &enable))
+                SetStatus(StatusBit::Enable, enable);
 
-			// GUI上でオーナーから自分を削除します
-			if(ImGui::Button(u8"削除"))
-				GetOwner()->RemoveComponent(shared_from_this());
+            // GUI上でオーナーから自分を削除します
+            if(ImGui::Button(u8"削除"))
+                GetOwner()->RemoveComponent(shared_from_this());
 
-			ImGui::TreePop();
-		}
-	}
-	ImGui::End();
+            ImGui::TreePop();
+        }
+    }
+    ImGui::End();
 }
 
 CEREAL_REGISTER_TYPE(ComponentPlayerState)

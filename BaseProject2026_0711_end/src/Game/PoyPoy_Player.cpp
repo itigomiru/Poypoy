@@ -11,43 +11,42 @@
 #include "Component/ComponentStateThrow.h"
 #include "Component/ComponentPlayerState.h"
 
-namespace PoyPoy
+namespace PoyPoy {
+//! @brief 初期化
+//! @return 初期化終了
+bool Player::Init()
 {
-	//! @brief 初期化
-	//! @return 初期化終了
-	bool Player::Init()
-	{
-		Super::Init();
+    Super::Init();
 
-		SetName("Player");
+    SetName("Player");
 
-		//auto player = Scene::Object::Create<Object>("Player");
-		AddComponent<ComponentModel>("data/Game/Models/Player/untitled.mv1")
-			->SetAnimation({
-				{ "idle",	 "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f}, // Idle
-				{ "walk",	 "data/Game/Models/Player/Anims/Walk.mv1", 1, 1.0f}, // Walk
-				{"throw", "data/Game/Models/Player/Anims/Throw.mv1", 1, 1.0f}, // Throw
-		})
-			->SetScaleAxisXYZ({0.1f, 0.1f, 0.1f});
+    //auto player = Scene::Object::Create<Object>("Player");
+    AddComponent<ComponentModel>("data/Game/Models/Player/untitled.mv1")
+        ->SetAnimation({
+            { "idle",  "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f}, // Idle
+            { "walk",  "data/Game/Models/Player/Anims/Walk.mv1", 1, 1.0f}, // Walk
+            {"throw", "data/Game/Models/Player/Anims/Throw.mv1", 1, 1.0f}, // Throw
+    })
+        ->SetScaleAxisXYZ({0.1f, 0.1f, 0.1f});
 
-		SetTranslate({0, 5, 0});
+    SetTranslate({0, 5, 0});
 
-		AddComponent<ComponentPlayerState>();
+    AddComponent<ComponentPlayerState>();
 
-		AddComponent<ComponentCameraController>();
+    AddComponent<ComponentCameraController>();
 
-		auto col = AddComponent<ComponentCollisionCapsule>()	//
-					   ->SetRadius(3.0f)
-					   ->SetHeight(13.0f);
+    auto col = AddComponent<ComponentCollisionCapsule>()    //
+                   ->SetRadius(3.0f)
+                   ->SetHeight(13.0f);
 
-		col->UseGravity();
-		col->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
+    col->UseGravity();
+    col->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
-		return true;
-	}
+    return true;
+}
 
-	void Player::Update()
-	{
+void Player::Update()
+{
 #if 0
 		if(Input::IsKeyDown(KEY_INPUT_SPACE))
 		{
@@ -65,6 +64,6 @@ namespace PoyPoy
 			bullet->SetTranslate(GetTranslate() + up_len + vec);
 		}
 #endif
-	}
+}
 
-}	 // namespace PoyPoy
+}    // namespace PoyPoy

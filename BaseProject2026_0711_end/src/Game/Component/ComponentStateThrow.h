@@ -8,30 +8,27 @@ USING_PTR(ComponentStateThrow);
 class ComponentStateThrow : public ComponentState
 {
 public:
-	BP_COMPONENT_DECL(ComponentStateThrow, u8"投げる");
+    BP_COMPONENT_DECL(ComponentStateThrow, u8"投げる");
 
-	void Init() override;
+    void Init() override;
 
-	void Update() override;
+    void Update() override;
 
-	void GUI() override;
+    void GUI() override;
 
 private:
-	PoyPoy::BulletWeakPtr bullet_;
-	bool					 threw_ = false;
+    PoyPoy::BulletWeakPtr bullet_;
+    bool                  threw_ = false;
 
-	//--------------------------------------------------------------------
-	//! @name Cereal処理
-	//--------------------------------------------------------------------
-	//@{
+    //--------------------------------------------------------------------
+    //! @name Cereal処理
+    //--------------------------------------------------------------------
+    //@{
 
-	//! @brief セーブ
-	// @param arc アーカイバ
-	// @param ver バージョン
-	CEREAL_SAVELOAD(arc, ver)
-	{
-		arc(cereal::make_nvp("Component", cereal::base_class<Component>(this)));
-	}
+    //! @brief セーブ
+    // @param arc アーカイバ
+    // @param ver バージョン
+    CEREAL_SAVELOAD(arc, ver) { arc(cereal::make_nvp("Component", cereal::base_class<Component>(this))); }
 };
 
 CEREAL_CLASS_VERSION(ComponentStateThrow, 1);
