@@ -113,14 +113,14 @@ public:
 
     enum struct CollisionGroupBit : u32
     {
-        WALL   = 0,
-        GROUND = 1,
-        PLAYER = 2,
-        ENEMY  = 3,
-        WEAPON = 4,
-        THROWABLE   = 5,
-        CAMERA = 6,
-        ETC    = 7,
+        WALL      = 0,
+        GROUND    = 1,
+        PLAYER    = 2,
+        ENEMY     = 3,
+        WEAPON    = 4,
+        THROWABLE = 5,
+        CAMERA    = 6,
+        ETC       = 7,
 #if 0
 		WALL2	= 8,
 		GROUND2	= 9,
@@ -135,14 +135,14 @@ public:
 
     enum struct CollisionGroup : u32
     {
-        WALL   = 1 << static_cast<u32>(CollisionGroupBit::WALL),
-        GROUND = 1 << static_cast<u32>(CollisionGroupBit::GROUND),
-        PLAYER = 1 << static_cast<u32>(CollisionGroupBit::PLAYER),
-        ENEMY  = 1 << static_cast<u32>(CollisionGroupBit::ENEMY),
-        WEAPON = 1 << static_cast<u32>(CollisionGroupBit::WEAPON),
-        THROWABLE   = 1 << static_cast<u32>(CollisionGroupBit::THROWABLE),
-        CAMERA = 1 << static_cast<u32>(CollisionGroupBit::CAMERA),
-        ETC    = 1 << static_cast<u32>(CollisionGroupBit::ETC),
+        WALL      = 1 << static_cast<u32>(CollisionGroupBit::WALL),
+        GROUND    = 1 << static_cast<u32>(CollisionGroupBit::GROUND),
+        PLAYER    = 1 << static_cast<u32>(CollisionGroupBit::PLAYER),
+        ENEMY     = 1 << static_cast<u32>(CollisionGroupBit::ENEMY),
+        WEAPON    = 1 << static_cast<u32>(CollisionGroupBit::WEAPON),
+        THROWABLE = 1 << static_cast<u32>(CollisionGroupBit::THROWABLE),
+        CAMERA    = 1 << static_cast<u32>(CollisionGroupBit::CAMERA),
+        ETC       = 1 << static_cast<u32>(CollisionGroupBit::ETC),
 #if 0
 		WALL2   = 1 << static_cast<u32>( CollisionGroupBit::WALL2 ),
 		GROUND2 = 1 << static_cast<u32>( CollisionGroupBit::GROUND2 ),
