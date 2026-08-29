@@ -29,7 +29,7 @@ bool Player::Init()
     })
         ->SetScaleAxisXYZ({0.001f, 0.001f, 0.001f});
 
-    SetTranslate({0, 5, 0});
+    SetTranslate({0, 0, 0});
 
     AddComponent<ComponentPlayerState>();
 
@@ -43,11 +43,35 @@ bool Player::Init()
     col->UseGravity();
     col->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
+    AddComponent<ComponentCollisionSphere>()
+        ->SetTranslate(float3(0, 0, 10))
+        ->SetRadius(5.0f)
+        ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::THROWABLE);
+
     return true;
 }
 
 void Player::Update()
 {
+    Super::Update();
+    // モデルコンポーネントを取得
+    if(auto mdl = GetComponent<ComponentModel>()) {
+        // モデルのワールドマトリクスを取得
+        matrix m = mdl->GetWorldMatrix();
+
+        // マトリクスから前方ベクトルを取り出す
+        float3 forward = {-m._31, m._32, -m._33}; 
+        if((float)length(forward) > 0.0f) {
+            forward = normalize(forward);
+        }
+
+        // 前方へ10進んだ位置にスフィアを配置
+        float3 offsetPos = forward * 5.0f;
+
+        if(auto colSphere = GetComponent<ComponentCollisionSphere>()) {
+            colSphere->SetTranslate(offsetPos);
+        }
+    }
 }
 
 }    // namespace PoyPoy

@@ -4,8 +4,7 @@
 void ComponentThrowable::Init()
 {
     __super::Init();
-    GetOwner()->AddComponent<ComponentCollisionCapsule>()
-        ->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
+    GetOwner()->AddComponent<ComponentCollisionCapsule>()->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
 }
 
 void ComponentThrowable::Update()

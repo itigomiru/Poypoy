@@ -22,9 +22,10 @@ void ComponentPlayerState::Update()
     //! 今の状態を把握して状態を変えたい
 
     if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
-        if(IsState<ComponentStateIdleWalk>()) {
-            ChangeState<ComponentStatePickUp>();
-        }
+        //if(IsState<ComponentStateIdleWalk>()) {
+        //    ChangeState<ComponentStatePickUp>();
+        //}
+
     }
 }
 

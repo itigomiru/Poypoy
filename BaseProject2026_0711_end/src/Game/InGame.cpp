@@ -9,6 +9,7 @@
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
 #include "PoyPoy_Enemy.h"
+#include "PoyPoy_ThrowableObject.h"
 
 namespace PoyPoy {
 
@@ -24,6 +25,8 @@ bool InGame::Init()
     Scene::Object::Create<Player>();
 
     Scene::Object::Create<Camera>();
+
+    Scene::Object::Create<ThrowableObject>();
 
     return true;
 }

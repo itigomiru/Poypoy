@@ -14,6 +14,7 @@ public:
     void Update() override;
 
     void GUI() override;
+
 private:
     //--------------------------------------------------------------------
     //! @name Cereal処理
