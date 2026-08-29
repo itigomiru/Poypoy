@@ -1,21 +1,19 @@
 ﻿#pragma once
 #include <System/Scene.h>
-#include <Game/Component/ComponentState.h>
-#include <Game/PoyPoy_Bullet.h>
+#include <System/Component/Component.h>
 
-USING_PTR(ComponentStatePickUp);
+USING_PTR(ComponentThrowable);
 
-class ComponentStatePickUp : public ComponentState
+class ComponentThrowable : public Component
 {
 public:
-    BP_COMPONENT_DECL(ComponentStatePickUp, u8"持ち上げる");
+    BP_COMPONENT_DECL(ComponentThrowable, u8"投げられるもの");
 
     void Init() override;
 
     void Update() override;
 
     void GUI() override;
-
 private:
     //--------------------------------------------------------------------
     //! @name Cereal処理
@@ -27,5 +25,3 @@ private:
     // @param ver バージョン
     CEREAL_SAVELOAD(arc, ver) { arc(cereal::make_nvp("Component", cereal::base_class<Component>(this))); }
 };
-
-CEREAL_CLASS_VERSION(ComponentStatePickUp, 1);

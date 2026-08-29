@@ -118,7 +118,7 @@ public:
         PLAYER = 2,
         ENEMY  = 3,
         WEAPON = 4,
-        ITEM   = 5,
+        THROWABLE   = 5,
         CAMERA = 6,
         ETC    = 7,
 #if 0
@@ -140,7 +140,7 @@ public:
         PLAYER = 1 << static_cast<u32>(CollisionGroupBit::PLAYER),
         ENEMY  = 1 << static_cast<u32>(CollisionGroupBit::ENEMY),
         WEAPON = 1 << static_cast<u32>(CollisionGroupBit::WEAPON),
-        ITEM   = 1 << static_cast<u32>(CollisionGroupBit::ITEM),
+        THROWABLE   = 1 << static_cast<u32>(CollisionGroupBit::THROWABLE),
         CAMERA = 1 << static_cast<u32>(CollisionGroupBit::CAMERA),
         ETC    = 1 << static_cast<u32>(CollisionGroupBit::ETC),
 #if 0
@@ -174,8 +174,8 @@ public:
             return static_cast<u32>(CollisionGroupBit::ENEMY);
         if(grp == CollisionGroup::WEAPON)
             return static_cast<u32>(CollisionGroupBit::WEAPON);
-        if(grp == CollisionGroup::ITEM)
-            return static_cast<u32>(CollisionGroupBit::ITEM);
+        if(grp == CollisionGroup::THROWABLE)
+            return static_cast<u32>(CollisionGroupBit::THROWABLE);
         if(grp == CollisionGroup::CAMERA)
             return static_cast<u32>(CollisionGroupBit::CAMERA);
         if(grp == CollisionGroup::ETC)
@@ -205,8 +205,8 @@ public:
             return "ENEMY";
         if(grp == CollisionGroup::WEAPON)
             return "WEAPON";
-        if(grp == CollisionGroup::ITEM)
-            return "ITEM";
+        if(grp == CollisionGroup::THROWABLE)
+            return "THROWABLE";
         if(grp == CollisionGroup::CAMERA)
             return "CAMERA";
         if(grp == CollisionGroup::ETC)

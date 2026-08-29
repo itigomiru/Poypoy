@@ -243,7 +243,7 @@ void ComponentCollision::guiCollisionData()
         ImGui::CheckboxFlags("PLAYER", (u32*)&collision_hit_, (u32)CollisionGroup::PLAYER);
         ImGui::CheckboxFlags("ENEMY", (u32*)&collision_hit_, (u32)CollisionGroup::ENEMY);
         ImGui::CheckboxFlags("WEAPON", (u32*)&collision_hit_, (u32)CollisionGroup::WEAPON);
-        ImGui::CheckboxFlags("ITEM", (u32*)&collision_hit_, (u32)CollisionGroup::ITEM);
+        ImGui::CheckboxFlags("THROWABLE", (u32*)&collision_hit_, (u32)CollisionGroup::THROWABLE);
         ImGui::CheckboxFlags("CAMERA", (u32*)&collision_hit_, (u32)CollisionGroup::CAMERA);
         ImGui::CheckboxFlags("ETC", (u32*)&collision_hit_, (u32)CollisionGroup::ETC);
         ImGui::TreePop();
@@ -258,7 +258,7 @@ void ComponentCollision::guiCollisionData()
         ImGui::CheckboxFlags("PLAYER", (u32*)&collision_overlap_, (u32)CollisionGroup::PLAYER);
         ImGui::CheckboxFlags("ENEMY", (u32*)&collision_overlap_, (u32)CollisionGroup::ENEMY);
         ImGui::CheckboxFlags("WEAPON", (u32*)&collision_overlap_, (u32)CollisionGroup::WEAPON);
-        ImGui::CheckboxFlags("ITEM", (u32*)&collision_overlap_, (u32)CollisionGroup::ITEM);
+        ImGui::CheckboxFlags("THROWABLE", (u32*)&collision_overlap_, (u32)CollisionGroup::THROWABLE);
         ImGui::CheckboxFlags("CAMERA", (u32*)&collision_overlap_, (u32)CollisionGroup::CAMERA);
         ImGui::CheckboxFlags("ETC", (u32*)&collision_overlap_, (u32)CollisionGroup::ETC);
         ImGui::TreePop();

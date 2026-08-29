@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "ComponentStateIdleWalk.h"
 #include <Game/Component/ComponentStatePickUp.h>
-#include <Game/PoyPoy_Bullet.h>
 
 void ComponentStatePickUp::Init()
 {
@@ -16,9 +15,8 @@ void ComponentStatePickUp::Init()
 
         vec = -model->GetWorldVectorAxisZ() * front_len;
 
-        model->PlayAnimation("throw");
+        model->PlayAnimation("PickUp");
     }
-
 }
 
 void ComponentStatePickUp::Update()
