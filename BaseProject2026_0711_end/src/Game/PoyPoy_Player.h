@@ -16,5 +16,9 @@ public:
     bool Init() override;
 
     void Update() override;
+
+    void OnHit(const ComponentCollision::HitInfo& hitInfo);
+
+private:
 };
 }    // namespace PoyPoy

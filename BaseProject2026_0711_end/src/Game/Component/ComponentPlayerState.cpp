@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include <Game/Component/ComponentPlayerState.h>
+#include <Game/Component/ComponentStatePickUp.h>
 #include "ComponentStateIdleWalk.h"
-#include "ComponentStatePickUp.h"
+#include "ComponentPickUp.h"
 
 void ComponentPlayerState::Init()
 {
@@ -22,10 +23,10 @@ void ComponentPlayerState::Update()
     //! 今の状態を把握して状態を変えたい
 
     if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
-        //if(IsState<ComponentStateIdleWalk>()) {
-        //    ChangeState<ComponentStatePickUp>();
-        //}
-
+        if(auto pickUp = owner->GetComponent<ComponentPickUp>()) {
+            if(pickUp->GetCanPickUp() == true)
+                ChangeState<ComponentStatePickUp>();
+        }
     }
 }
 

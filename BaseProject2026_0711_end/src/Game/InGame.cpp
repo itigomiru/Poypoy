@@ -22,7 +22,7 @@ bool InGame::Init()
 
     Scene::Object::Create<Ground>();
 
-    Scene::Object::Create<Player>();
+    Scene::Object::Create<Player>()->SetTranslate(float3(0, 5.0f, 0));
 
     Scene::Object::Create<Camera>();
 

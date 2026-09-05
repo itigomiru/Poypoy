@@ -22,14 +22,14 @@ bool ThrowableObject::Init()
 
     AddComponent<ComponentModel>("data/Sample/Coin/GoldCoin.mv1");
 
-    
     AddComponent<ComponentCollisionSphere>()    //
         ->SetRadius(3.0f)
         ->SetMass(10.0f)
         ->SetRotationAxisXYZ({90.0f, 0.0f, 0.0f})
         ->SetTranslate({0.0f, 0.0f, 0.0f})
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE)
-        ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::GROUND | (u32)ComponentCollision::CollisionGroup::WALL | (u32)ComponentCollision::CollisionGroup::PLAYER)
+        ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::GROUND | (u32)ComponentCollision::CollisionGroup::WALL |
+                               (u32)ComponentCollision::CollisionGroup::PLAYER)
         ->UseGravity();
 
     return true;
@@ -38,13 +38,11 @@ bool ThrowableObject::Init()
 void ThrowableObject::Update()
 {
     Super::Update();
-
 }
 
 // 当たり判定が行われたときに呼ばれる関数
 void ThrowableObject::OnHit(const ComponentCollision::HitInfo& hit_info)
 {
-    
     Super::OnHit(hit_info);
 }
 
