@@ -35,7 +35,7 @@ public:
     void SetAttachModelStatus(AttachModelBit bit, bool on) { attach_model_status_.set(bit, on); }
     bool GetAttachModelStatus(AttachModelBit bit) { return attach_model_status_.is(bit); }
 
-    void SetAttachObject(ObjectPtr object, std::string_view node = "");
+    void SetAttachObject(ObjectPtr object, std::string_view node = "", float3 scale = 1.0f);
 
     void SetAttachObject(std::string_view name, std::string_view node = "");
 
@@ -50,6 +50,7 @@ private:
 
     float3 attach_model_rotate_{0, 0, 0};
     float3 attach_model_offset_{0, 0, 0};
+    float3 attach_model_scale_{1, 1, 1};
 
     ObjectWeakPtr object_;
     std::string   object_name_{};

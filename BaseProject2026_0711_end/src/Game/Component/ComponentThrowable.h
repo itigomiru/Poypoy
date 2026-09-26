@@ -15,6 +15,8 @@ public:
 
     void GUI() override;
 
+    void Release();
+
 private:
     //--------------------------------------------------------------------
     //! @name Cereal処理

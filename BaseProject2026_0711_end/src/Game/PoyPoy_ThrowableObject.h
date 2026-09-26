@@ -17,9 +17,6 @@ public:
 
     void Update() override;
 
-    // 当たり判定が行われたときに呼ばれる関数
-    void OnHit(const ComponentCollision::HitInfo& hit_info) override;
-
 private:
 };
 }    // namespace PoyPoy

@@ -4,12 +4,12 @@
 void ComponentThrowable::Init()
 {
     __super::Init();
-    GetOwner()->AddComponent<ComponentCollisionCapsule>()->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
 }
 
 void ComponentThrowable::Update()
 {
     __super::Update();
+    owner_->GetComponent<ComponentCollisionCapsule>()->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
 }
 
 void ComponentThrowable::GUI()
@@ -21,7 +21,7 @@ void ComponentThrowable::GUI()
     {
         ImGui::Separator();
 
-        if(ImGui::TreeNode(GetName().data())) {
+        if(ImGui::TreeNode("Throwable")) {
             // 有効/無効
             bool enable = GetStatus(StatusBit::Enable);
             if(ImGui::Checkbox(u8"有効", &enable))
@@ -35,6 +35,12 @@ void ComponentThrowable::GUI()
         }
     }
     ImGui::End();
+}
+
+void ComponentThrowable::Release()
+{
+    owner_->RemoveComponent<ComponentAttachModel>();
+    owner_->GetComponent<ComponentPhysics>()->SetPhysicsReal(1.0f);
 }
 
 CEREAL_REGISTER_TYPE(ComponentThrowable)

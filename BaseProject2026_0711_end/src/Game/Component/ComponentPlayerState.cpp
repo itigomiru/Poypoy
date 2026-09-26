@@ -23,10 +23,10 @@ void ComponentPlayerState::Update()
     //! 今の状態を把握して状態を変えたい
 
     if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
-        if(auto pickUp = owner->GetComponent<ComponentPickUp>()) {
-            if(pickUp->GetCanPickUp() == true)
-                ChangeState<ComponentStatePickUp>();
-        }
+        //if(auto pickUp = owner->GetComponent<ComponentPickUp>()) {
+        //    if(pickUp->GetCanPickUp() == true)
+        //        ChangeState<ComponentStatePickUp>();
+        //}
     }
 }
 

@@ -4,7 +4,6 @@
 //---------------------------------------------------------------------------
 
 #include "PoyPoy_Player.h"
-#include "PoyPoy_Bullet.h"
 #include "InGame.h"
 #include "Component/ComponentStateIdleWalk.h"
 #include "Component/ComponentCameraController.h"
@@ -49,7 +48,8 @@ bool Player::Init()
     AddComponent<ComponentCollisionSphere>()
         ->SetRadius(5.0f)
         ->SetOverlapCollisionGroup((u32)ComponentCollision::CollisionGroup::THROWABLE)
-        ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::THROWABLE);
+        ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::THROWABLE)
+        ->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
     AddComponent<ComponentPickUp>();
 
@@ -85,12 +85,13 @@ void Player::OnHit(const ComponentCollision::HitInfo& hitInfo)
     if(hitInfo.hit_collision_->GetCollisionGroup() == ComponentCollision::CollisionGroup::THROWABLE) {
         if(auto pickUp = GetComponent<ComponentPickUp>()) {
             pickUp->SetCanPickUp(true);
+            pickUp->SetThrowableObj(hitInfo.hit_collision_->GetOwner()->GetComponent<ComponentThrowable>());
         }
     }
     else {
         if(auto pickUp = GetComponent<ComponentPickUp>()) {
             pickUp->SetCanPickUp(false);
-            pickUp->SetIsPickup(false);
+            pickUp->SetThrowableObj(nullptr);
         }
     }
 }

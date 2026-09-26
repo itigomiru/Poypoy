@@ -18,6 +18,7 @@ bool Ground::Init()
     //auto ground = Scene::Object::Create<Object>("Ground");
     AddComponent<ComponentModel>("data/Game/Models/Terrain/Ground.mv1")->SetScaleAxisXYZ(float3(0.00005f, 0.00005f, 0.00005f));
     AddComponent<ComponentCollisionModel>()->AttachToModel();
+    AddComponent<ComponentPhysics>()->CreateMesh(GetComponent<ComponentModel>(), 1.0f);
 
     return true;
 }

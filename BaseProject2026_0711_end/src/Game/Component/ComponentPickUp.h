@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ComponentThrowable.h"
 #include <System/Scene.h>
 #include <System/Component/Component.h>
 
@@ -8,8 +9,11 @@ class ComponentPickUp : public Component
 {
 public:
     BP_COMPONENT_DECL(ComponentPickUp, u8"持ち上げる");
+    void Update();
 
     void GUI() override;
+
+    void SetThrowableObj(ComponentThrowablePtr throwable_obj) { throwable_obj_ = throwable_obj; }
 
     void SetCanPickUp(bool can_pickUp) { can_pickUp_ = can_pickUp; }
     bool GetCanPickUp() const { return can_pickUp_; }
@@ -21,9 +25,11 @@ private:
     //! @name Cereal処理
     //--------------------------------------------------------------------
     //@{
-    
+
     bool can_pickUp_ = false;
-    bool is_pickup_ = false;
+    bool is_pickup_  = false;
+
+    ComponentThrowablePtr throwable_obj_ = nullptr;
     //! @brief セーブ
     // @param arc アーカイバ
     // @param ver バージョン
