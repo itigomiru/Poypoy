@@ -23,13 +23,13 @@ bool Player::Init()
     SetName("Player");
 
     //auto player = Scene::Object::Create<Object>("Player");
-    AddComponent<ComponentModel>("data/Game/Models/Player/player.mv1")
+    AddComponent<ComponentModel>("data/Game/Models/Player/Player1.mv1")
         ->SetAnimation({
             { "idle",  "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f}, // Idle
             { "walk",  "data/Game/Models/Player/Anims/Walk.mv1", 1, 1.0f}, // Walk
-            {"throw", "data/Game/Models/Player/Anims/Throw.mv1", 1, 1.0f}, // Throw
+            {"throw", "data/Game/Models/Player/Anims/Lift.mv1", 1, 1.0f}, // Lift
     })
-        ->SetScaleAxisXYZ({0.001f, 0.001f, 0.001f});
+        ->SetScaleAxisXYZ({0.1f, 0.1f, 0.1f});
 
     SetTranslate({0, 0, 0});
 
@@ -40,7 +40,7 @@ bool Player::Init()
     auto col = AddComponent<ComponentCollisionCapsule>()    //
                    ->SetRadius(5.0f)
                    ->SetHeight(21.0f)
-                   ->SetTranslate(float3(0, -9.5f, 0));
+                   ->SetTranslate(float3(0, 0, 0));
 
     col->UseGravity();
     col->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
