@@ -16,6 +16,7 @@ struct PlayerUI
     int  hp_     = 3;        //!< ハート数
     int  max_hp_ = 3;        //!< 最大ハート数
     bool retire_ = false;    //!< リタイア状態
+    int  faceGraph_ = -1;    //!< 顔画像グラフハンドル（-1 = 未設定）
 };
 
 //! @brief ゲーム画面に表示するUI
@@ -34,6 +35,8 @@ public:
 
     void GUI() override;
 
+    void Exit() override;
+
 private:
     //! @brief タイマー表示
     void drawTimer(float adjust_x, float adjust_y);
@@ -50,7 +53,8 @@ private:
     //! @param [in]    size    アイコンサイズ
     //! @param [in]    color   アイコン色
     //! @param [in]    retire  リタイア状態
-    void drawFace(int x, int y, int size, unsigned int color, bool retire);
+    //! @param [in]    faceGraph 顔画像グラフハンドル（-1 = プリミティブ描画）
+    void drawFace(int x, int y, int size, unsigned int color, bool retire, int faceGraph);
 
     //! @brief ハート表示
     //! @param [in]    x       左上X座標
@@ -58,6 +62,12 @@ private:
     //! @param [in]    size    ハートサイズ
     //! @param [in]    color   ハート色
     void drawHeart(int x, int y, int size, unsigned int color);
+
+    //! @brief 顔画像ロード
+    //! @param [in]    index プレイヤーインデックス
+    //! @param [in]    path  画像パス
+    //! @return ロード成功可否
+    bool loadFaceGraph(int index, const char* path);
 
     float timer_ = 83.0f;    //!< 残り時間(秒) ※開始は01:23
 

@@ -66,7 +66,24 @@ bool PoyPoy_UI::Init()
 
     SetName("UI");
 
+    for(int i = 0; i < UI_MAX_PLAYERS; ++i) {
+        auto path = std::format("data/Game/UI/face{}.png", i + 1);
+        loadFaceGraph(i, path.c_str());
+    }
+
     return true;
+}
+
+void PoyPoy_UI::Exit()
+{
+    for(int i = 0; i < UI_MAX_PLAYERS; ++i) {
+        if(players_[i].faceGraph_ >= 0) {
+            DeleteGraph(players_[i].faceGraph_);
+            players_[i].faceGraph_ = -1;
+        }
+    }
+
+    Super::Exit();
 }
 
 void PoyPoy_UI::Update()
@@ -153,7 +170,7 @@ void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
     int face_size = static_cast<int>(FACE_SIZE * adjust_x);
     int face_x    = px + static_cast<int>(PANEL_PADDING * adjust_x);
     int face_y    = py + static_cast<int>(34 * adjust_y);
-    drawFace(face_x, face_y, face_size, PLAYER_COLORS[index], player.retire_);
+    drawFace(face_x, face_y, face_size, PLAYER_COLORS[index], player.retire_, player.faceGraph_);
 
     // ハート / リタイア表示
     int info_x = face_x + face_size + static_cast<int>(14 * adjust_x);
@@ -176,20 +193,24 @@ void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
     }
 }
 
-void PoyPoy_UI::drawFace(int x, int y, int size, unsigned int color, bool retire)
+void PoyPoy_UI::drawFace(int x, int y, int size, unsigned int color, bool retire, int faceGraph)
 {
-    // 顔アイコン
-    DrawRoundRect(x, y, x + size, y + size, size / 6, size / 6, color, TRUE);
+    if(faceGraph >= 0) {
+        DrawExtendGraph(x, y, x + size, y + size, faceGraph, TRUE);
+    } else {
+        // 顔アイコン
+        DrawRoundRect(x, y, x + size, y + size, size / 6, size / 6, color, TRUE);
 
-    // 目
-    int eye = size / 9;
-    DrawCircle(x + size / 2 - eye * 2, y + size / 2 - eye, eye, COLOR_WHITE, TRUE);
-    DrawCircle(x + size / 2 + eye * 2, y + size / 2 - eye, eye, COLOR_WHITE, TRUE);
+        // 目
+        int eye = size / 9;
+        DrawCircle(x + size / 2 - eye * 2, y + size / 2 - eye, eye, COLOR_WHITE, TRUE);
+        DrawCircle(x + size / 2 + eye * 2, y + size / 2 - eye, eye, COLOR_WHITE, TRUE);
 
-    // 口
-    int mx = x + size / 2;
-    int my = y + size / 2 + eye * 2;
-    DrawOval(mx, my, size / 5, size / 10, COLOR_WHITE, TRUE);
+        // 口
+        int mx = x + size / 2;
+        int my = y + size / 2 + eye * 2;
+        DrawOval(mx, my, size / 5, size / 10, COLOR_WHITE, TRUE);
+    }
 
     if(retire) {
         // リタイアは×を表示
@@ -197,6 +218,16 @@ void PoyPoy_UI::drawFace(int x, int y, int size, unsigned int color, bool retire
         DrawLine(x + m, y + m, x + size - m, y + size - m, COLOR_RETIRE, 4);
         DrawLine(x + size - m, y + m, x + m, y + size - m, COLOR_RETIRE, 4);
     }
+}
+
+bool PoyPoy_UI::loadFaceGraph(int index, const char* path)
+{
+    int handle = LoadGraph(path);
+    if(handle >= 0) {
+        players_[index].faceGraph_ = handle;
+        return true;
+    }
+    return false;
 }
 
 void PoyPoy_UI::drawHeart(int x, int y, int size, unsigned int color)
