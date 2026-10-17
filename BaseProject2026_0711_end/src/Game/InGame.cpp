@@ -9,6 +9,7 @@
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
 #include "PoyPoy_Enemy.h"
+#include "PoyPoy_UI.h"
 
 namespace PoyPoy {
 
@@ -24,6 +25,9 @@ bool InGame::Init()
     Scene::Object::Create<Player>();
 
     Scene::Object::Create<Camera>();
+
+    // ゲーム画面にUIを表示する
+    Scene::Object::Create<PoyPoy_UI>();
 
     return true;
 }
