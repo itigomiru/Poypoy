@@ -19,14 +19,16 @@ public:
     //! @brief 現在のステートを取得する
     const std::string_view& GetStateName() const
     {
+        static const std::string_view empty;
         if(auto cmp = GetOwner()->GetComponent<ComponentState>()) {
             return cmp->GetName();
         }
+        return empty;
     }
 
     //! @brief 次のステートにする
     template <class T>
-    bool ChangeState()
+    void ChangeState()
     {
         auto owner = GetOwner();
         owner->RemoveComponent<ComponentState>();
