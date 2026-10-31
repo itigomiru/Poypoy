@@ -3,6 +3,7 @@
 //! @brief	InGame
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
+#include "PoyPoy_UI.h"
 
 namespace PoyPoy {
 
@@ -19,12 +20,16 @@ public:
 
     void Update() override;
 
+    void LateDraw() override;
+
     void AddDeadEnemy();
 
 private:
     void createEnemy();
 
     int enemy_dead_count_ = 0;
+
+    //PoyPoy_UI ui_;
 };
 
 }    // namespace PoyPoy

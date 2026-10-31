@@ -6,24 +6,27 @@
 
 namespace PoyPoy {
 
-class PoyPoy_UI : public Scene::Base
+class PoyPoy_UI
 {
 public:
     BP_CLASS_DECL(PoyPoy_UI, u8"PoyPoyタイトル");
     //! @brief 初期化
     //! @return 初期化済み
-    bool Init() override;
+    bool Init();
 
-    void Update() override;
+    void Update();
 
-    void LateDraw() override;
+    void Draw();
 
-    void GUI() override;
+    void GUI();
 
 private:
-    int UI_x_    = 20;
-    int UI_y_    = 110;
-    int UI_size_ = 500;
+    int UI_x_    = 100;
+    int UI_y_    = 550;
+    int UI_size_ = 100;
+    int UI_Box   = -1;
+
+    int Player_num_ = 4;
 };
 
 }    // namespace PoyPoy

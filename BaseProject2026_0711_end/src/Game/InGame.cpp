@@ -16,6 +16,7 @@ namespace PoyPoy {
 //! @return 初期化済み
 bool InGame::Init()
 {
+    //ui_.Init();
     // 最初に1回動作する
     // ただし trueを返さなければ Initに何回も来る仕様。
 
@@ -38,6 +39,11 @@ void InGame::Update()
 
         enemy_dead_count_ = 0;
     }
+}
+
+void InGame::LateDraw()
+{
+    //ui_.Draw();
 }
 
 void InGame::AddDeadEnemy()
