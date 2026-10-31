@@ -131,7 +131,7 @@ void ComponentTransform::PrePhysics()
     if(auto cmp_physics = GetOwner()->GetComponent<ComponentPhysics>()) {
         if(!cmp_physics->GetPhysicsStatus(ComponentPhysics::PhysicsBit::Static)) {
             auto       mx = cmp_physics->GetWorldMatrix();
-            quaternion q((float3x3)mx);
+            quaternion q = normalize(quaternion((float3x3)mx));
             auto       trans = mx.translate();
             auto       t     = GetDeltaTime();
             auto       body  = cmp_physics->GetRigidBody();
@@ -148,9 +148,7 @@ void ComponentTransform::PrePhysics()
                 if(power >= 1.0f)
                     return;
 
-                float3 v = {body->linearVelocity().x * power, body->linearVelocity().y, body->linearVelocity().z * power};
-                if(v.y > 0)
-                    v.y = body->linearVelocity().y * power;
+                float3 v = body->linearVelocity() * power;
 
                 body->moveKinematic(trans, q, t);
                 body->addLinearVelocity(v);

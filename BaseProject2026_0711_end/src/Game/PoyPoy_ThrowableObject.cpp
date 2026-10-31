@@ -30,17 +30,11 @@ bool ThrowableObject::Init()
         ->SetTranslate({0.0f, 0.0f, 0.0f})
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE)
         ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::GROUND | (u32)ComponentCollision::CollisionGroup::WALL |
-                               (u32)ComponentCollision::CollisionGroup::PLAYER)
-        ->UseGravity();
-
-    auto physics = AddComponent<ComponentPhysics>();
-    physics->CreateCapsule(15.0f, 5.0f, 10.0f);
-    physics->SetPhysicsReal(0.0f);
-    physics->SetFriction(1.0f);
-    physics->SetTranslate({0.0f, 18.0f, 0.0f});
-    physics->SetGravityFactor(0.0f);
+                               (u32)ComponentCollision::CollisionGroup::PLAYER |
+                               (u32)ComponentCollision::CollisionGroup::ENEMY);
 
     SetRotationAxisXYZ({90.0f, 0.0f, 0.0f});
+    // 重力・投げる挙動(初速度・重さ・バウンド・摩擦)は ComponentThrowable で管理する
     AddComponent<ComponentThrowable>();
     return true;
 }

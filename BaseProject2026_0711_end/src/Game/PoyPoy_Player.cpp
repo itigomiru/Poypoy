@@ -12,6 +12,8 @@
 #include "Component/ComponentThrowable.h"
 #include "PoyPoy_ThrowableObject.h"
 #include "Component/ComponentPickUp.h"
+#include <System/Component/ComponentModel.h>
+#include <System/VectorMath.h>
 
 namespace PoyPoy {
 //! @brief 初期化
@@ -25,8 +27,8 @@ bool Player::Init()
     //auto player = Scene::Object::Create<Object>("Player");
     AddComponent<ComponentModel>("data/Game/Models/Player/Player1.mv1")
         ->SetAnimation({
-            { "idle",  "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f}, // Idle
-            { "walk",  "data/Game/Models/Player/Anims/Walk.mv1", 1, 1.0f}, // Walk
+            { "idle", "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f}, // Idle
+            { "walk", "data/Game/Models/Player/Anims/Walk.mv1", 1, 1.0f}, // Walk
             {"throw", "data/Game/Models/Player/Anims/Lift.mv1", 1, 1.0f}, // Lift
     })
         ->SetScaleAxisXYZ({0.1f, 0.1f, 0.1f});
@@ -71,7 +73,7 @@ void Player::Update()
         }
 
         // 前方へ 5.0f、足元へはカプセルの translate を基準に下方向へ配置
-        float3 offsetPos = forward * 7.0f + float3(0.0f, -3.0f, 0.0f);
+        float3 offsetPos = forward * 7.0f + float3(0.0f, 5.0f, 0.0f);
 
         if(auto colSphere = GetComponent<ComponentCollisionSphere>()) {
             colSphere->SetTranslate(offsetPos);
@@ -82,6 +84,13 @@ void Player::Update()
 void Player::OnHit(const ComponentCollision::HitInfo& hitInfo)
 {
     Super::OnHit(hitInfo);
+
+    // 保持中は保持対象を維持する(地面との衝突でクリアしない)
+    if(auto pickUp = GetComponent<ComponentPickUp>()) {
+        if(pickUp->GetState() == ComponentPickUp::PickUpState::Holding)
+            return;
+    }
+
     if(hitInfo.hit_collision_->GetCollisionGroup() == ComponentCollision::CollisionGroup::THROWABLE) {
         if(auto pickUp = GetComponent<ComponentPickUp>()) {
             pickUp->SetCanPickUp(true);

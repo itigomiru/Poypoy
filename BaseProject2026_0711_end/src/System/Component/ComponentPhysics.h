@@ -79,6 +79,14 @@ public:
 
     bool CreateMesh(ComponentModelPtr model, float scale = 1.0);
 
+    //! @brief 密度(質量)を設定します。形状を作り直して質量を変更します
+    //! @param density 密度(0.0f超)
+    void SetDensity(float density);
+
+    //! @brief 密度(質量)を取得します
+    //! @return 密度
+    inline const float GetDensity() const { return density_; }
+
     std::shared_ptr<physics::RigidBody> GetRigidBody() { return body_; }
 
     //@}

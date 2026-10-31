@@ -2,7 +2,7 @@
 //!	@file	PoyPoy_Player.h
 //! @brief	PoyPoy_Player
 //---------------------------------------------------------------------------
-#include <System/Scene.h>
+#include <System/Object.h>
 
 namespace PoyPoy {
 USING_PTR(Player);
@@ -22,3 +22,4 @@ public:
 private:
 };
 }    // namespace PoyPoy
+

@@ -6,6 +6,7 @@
 #include "PoyPoy_GameOver.h"
 
 #include "PoyPoy_Player.h"
+#include "PoyPoy_Dummy.h"
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
 #include "PoyPoy_ThrowableObject.h"
@@ -22,6 +23,9 @@ bool InGame::Init()
     Scene::Object::Create<Ground>();
 
     Scene::Object::Create<Player>()->SetTranslate(float3(0, 5.0f, 0));
+
+    // 移動機能を持たないダミーのプレイヤー
+    Scene::Object::Create<Dummy>();
 
     Scene::Object::Create<Camera>();
 

@@ -9,7 +9,8 @@ class ComponentPickUp : public Component
 {
 public:
     BP_COMPONENT_DECL(ComponentPickUp, u8"持ち上げる");
-    void Update();
+    void Update() override;
+    void LateUpdate() override;
 
     void GUI() override;
 
@@ -17,19 +18,28 @@ public:
 
     void SetCanPickUp(bool can_pickUp) { can_pickUp_ = can_pickUp; }
     bool GetCanPickUp() const { return can_pickUp_; }
-    void SetIsPickup(bool is_pickup) { is_pickup_ = is_pickup; }
-    bool GetIsPickup() const { return is_pickup_; }
+
+    enum class PickUpState {
+        None,
+        PickingUp,   // アニメーション再生中（もつ）
+        Holding,     // 持ち上げている
+        Throwing,    // アニメーション再生中（投げる）
+    };
+
+    PickUpState GetState() const { return state_; }
 
 private:
+    bool can_pickUp_ = false;
+    PickUpState state_ = PickUpState::None;
+    ComponentThrowablePtr throwable_obj_ = nullptr;
+
+    void ExecutePickUp();
+    void ExecuteThrow();
+
     //--------------------------------------------------------------------
     //! @name Cereal処理
     //--------------------------------------------------------------------
     //@{
-
-    bool can_pickUp_ = false;
-    bool is_pickup_  = false;
-
-    ComponentThrowablePtr throwable_obj_ = nullptr;
     //! @brief セーブ
     // @param arc アーカイバ
     // @param ver バージョン

@@ -89,8 +89,10 @@ void ComponentAttachModel::SetAttachObject(ObjectPtr object, std::string_view no
     object_node_name_ = node;
     if(auto model = object->GetComponent<ComponentModel>()) {
         object_node_index_ = model->GetNodeIndex(node);
-        float3 pos         = model->GetNodePosition(object_node_index_);
-        GetOwner()->SetTranslate(pos);
+        if(object_node_index_ >= 0) {
+            float3 pos = model->GetNodePosition(object_node_index_);
+            GetOwner()->SetTranslate(pos);
+        }
     }
     attach_model_scale_ = scale;
 
