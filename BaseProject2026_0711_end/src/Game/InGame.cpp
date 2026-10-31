@@ -9,6 +9,7 @@
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
 #include "PoyPoy_Enemy.h"
+#include "PoyPoy_UI.h"
 
 namespace PoyPoy {
 
@@ -16,7 +17,6 @@ namespace PoyPoy {
 //! @return 初期化済み
 bool InGame::Init()
 {
-    //ui_.Init();
     // 最初に1回動作する
     // ただし trueを返さなければ Initに何回も来る仕様。
 
@@ -25,6 +25,9 @@ bool InGame::Init()
     Scene::Object::Create<Player>();
 
     Scene::Object::Create<Camera>();
+
+    // ゲーム画面にUIを表示する
+    Scene::Object::Create<PoyPoy_UI>();
 
     return true;
 }
@@ -39,11 +42,6 @@ void InGame::Update()
 
         enemy_dead_count_ = 0;
     }
-}
-
-void InGame::LateDraw()
-{
-    //ui_.Draw();
 }
 
 void InGame::AddDeadEnemy()

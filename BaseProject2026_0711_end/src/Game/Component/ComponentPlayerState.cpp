@@ -17,8 +17,6 @@ void ComponentPlayerState::Update()
 {
     __super::Update();
 
-    auto owner = GetOwner();
-
     //! 今の状態を把握して状態を変えたい
 
     if(Input::IsKeyDown(KEY_INPUT_SPACE)) {

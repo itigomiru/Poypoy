@@ -4,6 +4,7 @@
 //---------------------------------------------------------------------------
 #include "PoyPoy_Title.h"
 #include "InGame.h"
+#include "PoyPoy_UI.h"
 
 #include <System/Scene.h>
 #include <System/Component/ComponentModel.h>
@@ -16,7 +17,9 @@ namespace PoyPoy {
 
 bool PoyPoy_Title::Init()
 {
-    ui_.Init();
+    // タイトル画面にもUIを表示する
+    Scene::Object::Create<PoyPoy_UI>();
+
     // 最初に1回動作する
     // ただし trueを返さなければ Initに何回も来る仕様。
     auto camera = Scene::Object::Create<Object>("Camera");
@@ -48,8 +51,6 @@ void PoyPoy_Title::LateDraw()
     SetFontSize(static_cast<int>(title_size_ * ADJUST_X));
 
     DrawFormatString(static_cast<int>(title_x_ * ADJUST_X), static_cast<int>(title_y_ * ADJUST_Y), GetColor(255, 255, 255), "Title");
-
-    ui_.Draw();
 }
 
 void PoyPoy_Title::GUI()

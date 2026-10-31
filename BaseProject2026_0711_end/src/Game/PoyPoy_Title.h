@@ -3,7 +3,6 @@
 //! @brief	PoyPoy_Title
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
-#include "PoyPoy_UI.h"
 
 namespace PoyPoy {
 
@@ -25,8 +24,6 @@ private:
     int title_x_    = 20;
     int title_y_    = 110;
     int title_size_ = 500;
-
-    PoyPoy_UI ui_;
 };
 
 }    // namespace PoyPoy
