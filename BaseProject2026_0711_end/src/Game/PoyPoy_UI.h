@@ -13,8 +13,8 @@ static constexpr int UI_MAX_PLAYERS = 4;
 //! @brief プレイヤーUI情報
 struct PlayerUI
 {
-    int  hp_     = 3;        //!< ハート数
-    int  max_hp_ = 3;        //!< 最大ハート数
+    float hp_     = 3.0f;    //!< 現在体力（0～max_hp_、ハート1つの縮小率）
+    int   max_hp_ = 3;       //!< 最大体力
     bool retire_ = false;    //!< リタイア状態
     int  faceGraph_ = -1;    //!< 顔画像グラフハンドル（-1 = 未設定）
 };

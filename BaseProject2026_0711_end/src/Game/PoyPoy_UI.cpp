@@ -27,8 +27,7 @@ constexpr int PANEL_H      = 108;
 
 //! パネル内要素サイズ
 constexpr int FACE_SIZE  = 60;    //!< 顔アイコンサイズ
-constexpr int HEART_SIZE = 28;    //!< ハートサイズ
-constexpr int HEART_GAP  = 6;     //!< ハート間隔
+constexpr int HEART_MIN  = 4;     //!< ハートの最小表示サイズ（これ未満は描画しない）
 
 //! パネル内余白
 constexpr int PANEL_PADDING = 14;
@@ -182,13 +181,25 @@ void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
         DrawString(info_x, info_y, "RETIRE!", COLOR_RETIRE, COLOR_PANEL);
     }
     else {
-        // ハート表示
-        for(int i = 0; i < player.max_hp_; ++i) {
-            int hx = info_x + i * static_cast<int>((HEART_SIZE + HEART_GAP) * adjust_x);
-            drawHeart(hx,
-                      info_y,
-                      static_cast<int>(HEART_SIZE * adjust_x),
-                      (i < player.hp_) ? COLOR_HEART : COLOR_HEART_OFF);
+        // 大きなハート1つ（体力に応じて縮小）
+        int area_x = info_x;
+        int area_y = info_y;
+        int area_w = px + panel_w - static_cast<int>(PANEL_PADDING * adjust_x) - area_x;
+        int area_h = py + panel_h - static_cast<int>(PANEL_PADDING * adjust_y) - area_y;
+        int full   = std::min(area_w, area_h);
+
+        if(full >= HEART_MIN) {
+            float ratio = (player.max_hp_ > 0) ? std::clamp(player.hp_ / player.max_hp_, 0.0f, 1.0f) : 0.0f;
+
+            // 背景（最大体力分のハート）
+            int base_x = area_x + (area_w - full) / 2;
+            drawHeart(base_x, area_y, full, COLOR_HEART_OFF);
+
+            // 現在体力分のハート（下端を揃えて縮める）
+            int cur = static_cast<int>(full * ratio);
+            if(cur >= HEART_MIN) {
+                drawHeart(base_x + (full - cur) / 2, area_y + (full - cur), cur, COLOR_HEART);
+            }
         }
     }
 }
@@ -248,7 +259,7 @@ void PoyPoy_UI::GUI()
     for(int i = 0; i < UI_MAX_PLAYERS; ++i) {
         std::string name = std::format("{}P", i + 1);
         if(ImGui::TreeNode(name.c_str())) {
-            ImGui::DragInt(u8"ハート数", &players_[i].hp_, 1.0f, 0, players_[i].max_hp_);
+            ImGui::DragFloat(u8"体力", &players_[i].hp_, 0.1f, 0.0f, static_cast<float>(players_[i].max_hp_));
             ImGui::Checkbox(u8"リタイア", &players_[i].retire_);
             ImGui::TreePop();
         }
