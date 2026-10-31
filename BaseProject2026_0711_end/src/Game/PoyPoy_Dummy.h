@@ -3,6 +3,7 @@
 //! @brief	PoyPoy_Dummy
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
+#include <System/Component/ComponentModel.h>
 
 namespace PoyPoy {
 USING_PTR(Dummy);
@@ -14,9 +15,5 @@ public:
     //! @brief 初期化
     //! @return 初期化終了
     bool Init() override;
-
-    void Update() override;
-
-    void OnHit(const ComponentCollision::HitInfo& hitInfo) override;
 };
 }    // namespace PoyPoy

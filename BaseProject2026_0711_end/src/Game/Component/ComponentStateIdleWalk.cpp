@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <Game/Component/ComponentStateIdleWalk.h>
+#include <Game/Component/ComponentKnockback.h>
 
 void ComponentStateIdleWalk::Init()
 {
@@ -15,6 +16,15 @@ void ComponentStateIdleWalk::Update()
     // オーナー(自分がAddComponentされたObject)を取得します
     // 処理されるときは必ずOwnerは存在しますので基本的にnullptrチェックは必要ありません
     auto owner = GetOwner();
+
+    // ノックバック中は移動入力を無視してノックバックの移動に任せる
+    if(auto knock = owner->GetComponent<ComponentKnockback>()) {
+        if(knock->IsKnockingBack()) {
+            if(auto mdl = owner->GetComponent<ComponentModel>())
+                mdl->PlayAnimationNoSame("idle", true);
+            return;
+        }
+    }
 
     // 移動方向
     float3 dir{0, 0, 0};

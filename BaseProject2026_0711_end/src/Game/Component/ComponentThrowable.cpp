@@ -28,6 +28,12 @@ void ComponentThrowable::Update()
 
     owner_->GetComponent<ComponentCollisionCapsule>()->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
 
+    // 攻撃判定は当たったフレームのノックバック処理より先に消えないよう、Updateのこの時点(当たり処理の前)で消す
+    if(disarm_pending_) {
+        armed_          = false;
+        disarm_pending_ = false;
+    }
+
     // 持ち上げ中は重力も移動も行わない(位置はComponentPickUpが制御する)
     if(held_) {
         velocity_  = {0.0f, 0.0f, 0.0f};
@@ -51,8 +57,12 @@ void ComponentThrowable::Update()
     // 速度ぶん移動する
     owner_->SetTranslate(owner_->GetWorldMatrix().translate() + velocity_ * dt);
 
-    // 飛行中は長い軸(ローカルY軸)回りに自然に回転させる。接地したら摩擦で減衰し止まる
+    // 飛行中は長い軸(ローカルY軸)回りに回転する。向きは進行方向(軸と直交する動き)で決まり、逆向きへ動けば反転する
     if(spin_rate_ != 0.0f) {
+        float3 roll_dir = cross(spin_axis_, {0.0f, 1.0f, 0.0f});    // 軸×上方向=このスピンで前に転がる進行方向
+        if((float)dot(velocity_, roll_dir) * spin_rate_ < 0.0f)
+            spin_rate_ = -spin_rate_;
+
         if(was_grounded) {
             float spin_damp = 1.0f - friction_ * dt;
             spin_rate_ = spin_damp > 0.0f ? spin_rate_ * spin_damp : 0.0f;
@@ -105,6 +115,9 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
        hitInfo.hit_collision_->IsOverlap(capsule->GetCollisionGroup()))
         return;
 
+    // 実ヒットした攻撃判定はこの当たりフレームの終わりで消す
+    disarm_pending_ = true;
+
     // 渡されたpush_は質量按分されて減るので、100%分のめり込み量を自分で調べる。
     // エンジンが既に位置補正を済ませていると計測値は0になるため、その場合は
     // dispatch時点の当たりベクトル、それも0なら直前の接触法線で接地として扱う
@@ -146,8 +159,10 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
     if(vn < 0.0f) {
         // 1フレーム分の重力が生む程度の接触速度ならバウンドではなく接地として扱う
         float contact_limit = gravity_accel_ * dt * 1.5f;
-        if(vn < -contact_limit && bounce_ > 0.0f)
+        if(vn < -contact_limit && bounce_ > 0.0f) {
             velocity_ -= normal * vn * (1.0f + bounce_);    // バウンド
+            spin_rate_ = -spin_rate_;                        // 跳ね返るたびに逆回転へ
+        }
         else
             velocity_ -= normal * vn;                        // 吸収
     }
@@ -219,12 +234,20 @@ void ComponentThrowable::PickUp()
     held_     = true;
     grounded_ = false;
     velocity_ = {0.0f, 0.0f, 0.0f};
+
+    // 持っている間は攻撃判定なし
+    armed_          = false;
+    disarm_pending_ = false;
 }
 
 void ComponentThrowable::Throw(const float3& dir)
 {
     held_     = false;
     grounded_ = false;
+
+    // 投げた瞬間から攻撃判定ON(当たって消えるか拾い直されるまで)
+    armed_          = true;
+    disarm_pending_ = false;
 
     // 水平方向へ設定された初速度を与える
     float3 direction = dir;
@@ -236,8 +259,10 @@ void ComponentThrowable::Throw(const float3& dir)
     spin_axis_   = owner_->GetVectorAxisY();
     spin_base_x_ = owner_->GetVectorAxisX();
     spin_base_z_ = owner_->GetVectorAxisZ();
-    spin_rate_   = spin_ * (3.14159265f / 180.0f);
-    spin_angle_  = 0.0f;
+    // 進行方向(軸と直交する投げ方向の成分)が正方向なら正回転、逆向きなら逆回転
+    float3 roll_dir  = cross(spin_axis_, {0.0f, 1.0f, 0.0f});
+    spin_rate_       = spin_ * (3.14159265f / 180.0f) * ((float)dot(velocity_, roll_dir) >= 0.0f ? 1.0f : -1.0f);
+    spin_angle_      = 0.0f;
 }
 
 void ComponentThrowable::ApplySettings()

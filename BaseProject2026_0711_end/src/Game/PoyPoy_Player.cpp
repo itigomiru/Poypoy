@@ -12,6 +12,7 @@
 #include "Component/ComponentThrowable.h"
 #include "PoyPoy_ThrowableObject.h"
 #include "Component/ComponentPickUp.h"
+#include "Component/ComponentKnockback.h"
 #include <System/Component/ComponentModel.h>
 #include <System/VectorMath.h>
 
@@ -54,6 +55,9 @@ bool Player::Init()
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
     AddComponent<ComponentPickUp>();
+
+    // 投げ物を体躯で受けるとノックバックする(Dummyと同じ仕組み)
+    AddComponent<ComponentKnockback>();
 
     return true;
 }
