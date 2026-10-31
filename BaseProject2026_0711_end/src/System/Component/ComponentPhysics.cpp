@@ -1094,7 +1094,7 @@ void ComponentPhysics::GUI()
 void ComponentPhysics::MoveTo(const matrix& mat)
 {
     if(auto body = GetRigidBody()) {
-        body->moveKinematic(mat.translate(), quaternion(float3x3(mat)), GetDeltaTime());
+        body->moveKinematic(mat.translate(), normalize(quaternion(float3x3(mat))), GetDeltaTime());
     }
 }
 
@@ -1209,6 +1209,56 @@ bool ComponentPhysics::CreateCylinder(float half_height, float radius, float den
 
     LockRotateAxis(GetPhysicsStatus(PhysicsBit::LockRotX), GetPhysicsStatus(PhysicsBit::LockRotY), GetPhysicsStatus(PhysicsBit::LockRotZ));
     return true;
+}
+
+void ComponentPhysics::SetDensity(float density)
+{
+    if(density <= 0.0f)
+        density = 0.01f;
+
+    if(density == density_)
+        return;
+
+    density_ = density;
+
+    if(!body_)
+        return;
+
+    // 現在の形状を確認して同じ寸法で作り直す
+    auto ref = physics::Engine::bodyInterface()->GetShape(GetBodyID(body_));
+    if(!ref)
+        return;
+
+    switch((int)ref->GetSubType()) {
+    // Convex shapes
+    case(int)JPH::EShapeSubType::Box:
+        CreateBox(shape_data.box_size, density_);
+        break;
+    case(int)JPH::EShapeSubType::Sphere:
+        CreateSphere(shape_data.sphere_center, shape_data.sphere_radius, density_);
+        break;
+    case(int)JPH::EShapeSubType::Capsule:
+        CreateCapsule(shape_data.cylinder_half_height, shape_data.cylinder_radius, density_);
+        break;
+    case(int)JPH::EShapeSubType::Cylinder:
+        CreateCylinder(shape_data.cylinder_half_height, shape_data.cylinder_radius, density_);
+        break;
+    default:
+        // Meshなどは密度を変更できない
+        break;
+    }
+
+    // 作り直したのでアクティブ状態を復旧する
+    if(body_) {
+        if(GetPhysicsStatus(PhysicsBit::Actived)) {
+            body_->setGravityFactor(gravity_factor_);
+            physics::Engine::bodyInterface()->ActivateBody(GetBodyID(body_));
+        }
+        else {
+            body_->setGravityFactor(0);
+            physics::Engine::bodyInterface()->DeactivateBody(GetBodyID(body_));
+        }
+    }
 }
 
 bool ComponentPhysics::CreateMesh(ComponentModelPtr model, float scale)

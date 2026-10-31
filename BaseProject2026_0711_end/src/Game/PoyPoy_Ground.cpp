@@ -16,8 +16,9 @@ bool Ground::Init()
     SetName("Ground");
 
     //auto ground = Scene::Object::Create<Object>("Ground");
-    AddComponent<ComponentModel>("data/Sample/SwordBout/Stage/Stage00.mv1");
+    AddComponent<ComponentModel>("data/Game/Models/Terrain/moon.mv1")->SetScaleAxisXYZ(0.005);
     AddComponent<ComponentCollisionModel>()->AttachToModel();
+    AddComponent<ComponentPhysics>()->CreateMesh(GetComponent<ComponentModel>(), 1.0f);
 
     return true;
 }

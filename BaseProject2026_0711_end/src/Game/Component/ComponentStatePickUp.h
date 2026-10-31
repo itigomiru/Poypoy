@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <System/Scene.h>
 #include <Game/Component/ComponentState.h>
-#include <Game/PoyPoy_Bullet.h>
 
 USING_PTR(ComponentStatePickUp);
 

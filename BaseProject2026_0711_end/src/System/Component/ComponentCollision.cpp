@@ -876,6 +876,52 @@ ComponentCollision::HitInfo ComponentCollision::isHit(ComponentCollisionCapsuleP
 
     float radius = col1->GetRadius() * scale;
 
+    // カプセルの長い軸(オーナーのY軸)が水平に近い場合、下に続くキャラクタ前提の検査では
+    // めり込み検知が破綻するため、実際の軸まわりのカプセルをそのまま模型に当てる汎用検査で処理する
+    {
+        float3 axis_dir = cpos1 - cpos;
+        float  axis_len = (float)length(axis_dir);
+        float  ay       = (float)axis_dir.y;
+        if((axis_len < 0.001f) || (ay * ay < 0.25f * axis_len * axis_len)) {
+            if(axis_len > 0.001f)
+                axis_dir = axis_dir * (1.0f / axis_len);
+            else
+                axis_dir = float3(0, 1, 0);
+
+            float3 cap_a = cpos;
+            float3 cap_b = cpos1;
+            if(axis_len > radius * 2.0f) {
+                cap_a = cpos + axis_dir * radius;
+                cap_b = cpos1 - axis_dir * radius;
+            }
+
+            // 戻し量
+            float3 vh{};
+
+            MV1_COLL_RESULT_POLY_DIM hit_poly_dim{};
+            hit_poly_dim = MV1CollCheck_Capsule(mdl->GetModel(), -1, cast(cap_b), cast(cap_a), radius);
+            float3         mid = (cap_a + cap_b) * 0.5f;
+            for(int i = 0; i < hit_poly_dim.HitNum; i++) {
+                // 当たった三角形の面に対するコア線中点の符号付き距離が半径以内なら重なりのため、
+                // 面の前側がカプセル表面と接する位置まで面法線に沿って戻す。
+                // 越え込み時に裏側から过大に押し戻して跳ねるのを防ぐ
+                float3 n   = cast(hit_poly_dim.Dim[i].Normal);
+                float3 tri = cast(hit_poly_dim.Dim[i].Position[0]);
+                float  s   = dot(n, mid - tri);
+                if(s < radius && s > -radius)
+                    vh = merge(vh, n * (radius - s));
+            }
+            if(hit_poly_dim.HitNum > 0) {
+                info.push_         = vh;
+                info.hit_          = true;
+                info.hit_position_ = cpos - vh;
+            }
+            MV1CollResultPolyDimTerminate(hit_poly_dim);
+
+            return info;
+        }
+    }
+
 #if 1
     {
         MV1_COLL_RESULT_POLY hit_poly{};

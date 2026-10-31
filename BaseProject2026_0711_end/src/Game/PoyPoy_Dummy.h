@@ -1,15 +1,15 @@
 ﻿//---------------------------------------------------------------------------
-//!	@file	PoyPoy_Enemy.h
-//! @brief	PoyPoy_Enemy
+//!	@file	PoyPoy_Dummy.h
+//! @brief	PoyPoy_Dummy
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
 
 namespace PoyPoy {
-USING_PTR(Enemy);
-class Enemy : public Object
+USING_PTR(Dummy);
+class Dummy : public Object
 {
 public:
-    BP_OBJECT_DECL(Enemy, "PoyPoy::Enemy");
+    BP_OBJECT_DECL(Dummy, "PoyPoy::Dummy");
 
     //! @brief 初期化
     //! @return 初期化終了
@@ -17,10 +17,6 @@ public:
 
     void Update() override;
 
-    // 当たり判定が行われたときに呼ばれる関数
-    void OnHit(const ComponentCollision::HitInfo& hit_info) override;
-
-private:
-    bool is_dead_ = false;
+    void OnHit(const ComponentCollision::HitInfo& hitInfo) override;
 };
 }    // namespace PoyPoy

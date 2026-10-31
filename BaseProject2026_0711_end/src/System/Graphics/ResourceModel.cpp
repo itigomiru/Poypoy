@@ -18,7 +18,7 @@ ResourceModel::ResourceModel(std::string_view path)
     path_ = convertTo(model_path);
 
     // ハンドルの非同期読み込み処理が完了したら呼ばれる関数
-    auto finish_callback = [](int mv1_handle, void* data) {
+    auto finish_callback = [](int /*mv1_handle*/, void* data) {
         auto* resource = reinterpret_cast<ResourceModel*>(data);
 
         // アクティブフラグを設定

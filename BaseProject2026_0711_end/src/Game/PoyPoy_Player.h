@@ -2,7 +2,7 @@
 //!	@file	PoyPoy_Player.h
 //! @brief	PoyPoy_Player
 //---------------------------------------------------------------------------
-#include <System/Scene.h>
+#include <System/Object.h>
 
 namespace PoyPoy {
 USING_PTR(Player);
@@ -16,5 +16,10 @@ public:
     bool Init() override;
 
     void Update() override;
+
+    void OnHit(const ComponentCollision::HitInfo& hitInfo);
+
+private:
 };
 }    // namespace PoyPoy
+

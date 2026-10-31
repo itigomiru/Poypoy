@@ -327,8 +327,7 @@ void AnimationModifier::update(f32 dt)
     else {
         // 上書き用のアニメーション再生はブレンドレートはすべて0.0fにしてから部分設定する
         for(u32 i = 0; i < std::size(contexts_); ++i) {
-            auto& c     = contexts_[i];
-            float ratio = c.blend_ratio_;
+            auto& c = contexts_[i];
 
             if(c.animation_attach_index_ == -1)
                 continue;
@@ -344,19 +343,17 @@ void AnimationModifier::update(f32 dt)
 
         // 【部分設定】 上書きブレンドを設定
         for(u32 i = 0; i < std::size(contexts_); ++i) {
-            auto& c     = contexts_[i];
-            float ratio = c.blend_ratio_;
+            auto& c = contexts_[i];
 
             if(c.animation_attach_index_ == -1)
                 continue;
 
-            DxLib::MV1SetAttachAnimBlendRateToFrame(model_mv1_handle, c.animation_attach_index_, target_frame_index_, ratio / blend_ratio_total, true);
+            DxLib::MV1SetAttachAnimBlendRateToFrame(model_mv1_handle, c.animation_attach_index_, target_frame_index_, c.blend_ratio_ / blend_ratio_total, true);
         }
     }
 
     for(u32 i = 0; i < std::size(contexts_); ++i) {
-        auto& c     = contexts_[i];
-        float ratio = c.blend_ratio_;
+        auto& c = contexts_[i];
 
         if(c.animation_attach_index_ == -1)
             continue;

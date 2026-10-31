@@ -24,7 +24,7 @@ void ComponentStatePickUp::Update()
     __super::Update();
 
     // 理想的なものに切り替えた
-    ChangeStateWhenAnimEnd<ComponentStateIdleWalk>();
+    //ChangeStateWhenAnimEnd<ComponentStateIdleWalk>();
 }
 
 void ComponentStatePickUp::GUI()

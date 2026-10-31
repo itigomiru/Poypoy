@@ -6,9 +6,10 @@
 #include "PoyPoy_GameOver.h"
 
 #include "PoyPoy_Player.h"
+#include "PoyPoy_Dummy.h"
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
-#include "PoyPoy_Enemy.h"
+#include "PoyPoy_ThrowableObject.h"
 #include "PoyPoy_UI.h"
 
 namespace PoyPoy {
@@ -22,9 +23,14 @@ bool InGame::Init()
 
     Scene::Object::Create<Ground>();
 
-    Scene::Object::Create<Player>();
+    Scene::Object::Create<Player>()->SetTranslate(float3(0, 5.0f, 0));
+
+    // 移動機能を持たないダミーのプレイヤー
+    Scene::Object::Create<Dummy>();
 
     Scene::Object::Create<Camera>();
+
+    Scene::Object::Create<ThrowableObject>()->SetTranslate(float3(0, 50.0f, 0));
 
     // ゲーム画面にUIを表示する
     Scene::Object::Create<PoyPoy_UI>();
@@ -34,19 +40,6 @@ bool InGame::Init()
 
 void InGame::Update()
 {
-    printfDx("\nDEAD ENEMY: %d", enemy_dead_count_);
-
-    if(enemy_dead_count_ >= MAX_ENEMIES) {
-        //createEnemy();
-        Scene::Change(Scene::GetScene<PoyPoy_GameOver>());
-
-        enemy_dead_count_ = 0;
-    }
-}
-
-void InGame::AddDeadEnemy()
-{
-    enemy_dead_count_++;
 }
 
 }    // namespace PoyPoy

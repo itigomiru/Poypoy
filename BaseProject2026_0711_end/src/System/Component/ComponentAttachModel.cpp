@@ -60,7 +60,7 @@ matrix ComponentAttachModel::GetPutOnMatrix() const
 {
     float  trans[3] = {attach_model_offset_.x, attach_model_offset_.y, attach_model_offset_.z};
     float  rot[3]   = {attach_model_rotate_.x, attach_model_rotate_.y, attach_model_rotate_.z};
-    float  scale[3] = {1.0f, 1.0f, 1.0f};
+    float  scale[3] = {attach_model_scale_.x, attach_model_scale_.y, attach_model_scale_.z};
     matrix rmat;
     RecomposeMatrixFromComponents(trans, rot, scale, rmat.f32_128_0);
 
@@ -82,16 +82,19 @@ matrix ComponentAttachModel::GetPutOnMatrix() const
     return mat;
 }
 
-void ComponentAttachModel::SetAttachObject(ObjectPtr object, std::string_view node)
+void ComponentAttachModel::SetAttachObject(ObjectPtr object, std::string_view node, float3 scale)
 {
     object_           = object;
     object_name_      = object->GetName();
     object_node_name_ = node;
     if(auto model = object->GetComponent<ComponentModel>()) {
         object_node_index_ = model->GetNodeIndex(node);
-        float3 pos         = model->GetNodePosition(object_node_index_);
-        GetOwner()->SetTranslate(pos);
+        if(object_node_index_ >= 0) {
+            float3 pos = model->GetNodePosition(object_node_index_);
+            GetOwner()->SetTranslate(pos);
+        }
     }
+    attach_model_scale_ = scale;
 
     GetOwner()->SetStatus(Object::StatusBit::Located, false);
 }
