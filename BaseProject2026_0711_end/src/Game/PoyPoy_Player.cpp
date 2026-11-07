@@ -6,13 +6,14 @@
 #include "PoyPoy_Player.h"
 #include "InGame.h"
 #include "Component/ComponentStateIdleWalk.h"
-#include "Component/ComponentCameraController.h"
 #include "Component/ComponentStatePickUp.h"
 #include "Component/ComponentPlayerState.h"
 #include "Component/ComponentThrowable.h"
 #include "PoyPoy_ThrowableObject.h"
 #include "Component/ComponentPickUp.h"
 #include "Component/ComponentKnockback.h"
+#include "Component/ComponentCrouch.h"
+#include "Component/ComponentDodge.h"
 #include <System/Component/ComponentModel.h>
 #include <System/VectorMath.h>
 
@@ -43,8 +44,6 @@ bool Player::Init()
 
     AddComponent<ComponentPlayerState>();
 
-    AddComponent<ComponentCameraController>();
-
     auto col = AddComponent<ComponentCollisionCapsule>()    //
                    ->SetRadius(5.0f)
                    ->SetHeight(21.0f)
@@ -60,6 +59,12 @@ bool Player::Init()
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
     AddComponent<ComponentPickUp>();
+
+    // Cキー長押しでしゃがみ(しゃがみ中はノックバック無効・ダメージ軽減)
+    AddComponent<ComponentCrouch>();
+
+    // 左Shift押下で前転回避(前転中は移動入力を無視して前転の移動に任せる)
+    AddComponent<ComponentDodge>();
 
     // 投げ物を体躯で受けるとノックバックする(Dummyと同じ仕組み)
     AddComponent<ComponentKnockback>();

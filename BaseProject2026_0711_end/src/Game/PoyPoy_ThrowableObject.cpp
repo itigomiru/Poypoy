@@ -32,7 +32,8 @@ bool ThrowableObject::Init()
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE)
         ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::GROUND | (u32)ComponentCollision::CollisionGroup::WALL |
                                (u32)ComponentCollision::CollisionGroup::PLAYER |
-                               (u32)ComponentCollision::CollisionGroup::ENEMY);
+                               (u32)ComponentCollision::CollisionGroup::ENEMY |
+                               (u32)ComponentCollision::CollisionGroup::THROWABLE);
 
     SetRotationAxisXYZ({90.0f, 0.0f, 0.0f});
     // 重力・投げる挙動(初速度・重さ・バウンド・摩擦)は ComponentThrowable がベースの設定値を受けて扱う

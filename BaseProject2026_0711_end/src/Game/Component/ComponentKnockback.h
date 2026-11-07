@@ -27,7 +27,23 @@ public:
     bool IsKnockingBack() const { return knocking_; }
 
     //! @brief ノックバック中または無敵時間中かを取得(当たり判定なしの判定に使う)
-    bool IsInvincible() const { return knocking_ || invincible_left_ > 0.0f; }
+    bool IsInvincible() const { return knocking_ || invincible_left_ > 0.0f || dodge_invincible_left_ > 0.0f; }
+
+    //! @brief ノックバック中またはノックバック後の無敵時間中かを取得(前転回避の開始可否の判定に使う。前転回避の無敵時間は含まない)
+    bool IsKnockInvincible() const { return knocking_ || invincible_left_ > 0.0f; }
+
+    //! @brief 点滅を伴わない無敵時間を開始する(前転回避など用)
+    //! @param time 無敵時間(秒)
+    void StartSilentInvincible(float time)
+    {
+        // すでにノックバック中・既存の無敵時間中の場合は上書きしない
+        if(knocking_ || invincible_left_ > 0.0f)
+            return;
+
+        dodge_invincible_left_ = time;
+        if(auto col = target_.lock())
+            col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, true);
+    }
 
     //! @brief ノックバックの速度(一律の強さ)の設定
     //! @param speed 速度
@@ -64,6 +80,7 @@ private:
 
     bool   knocking_        = false;                    //!< ノックバック中か
     float  invincible_left_ = 0.0f;                     //!< ノックバック終了後の無敵時間の残り(秒)
+    float  dodge_invincible_left_ = 0.0f;               //!< 前転回避による点滅なしの無敵時間の残り(秒)
     float3 knock_velocity_  = {0.0f, 0.0f, 0.0f};       //!< ノックバックの速度
     float  knock_speed_     = 40.0f;                    //!< ノックバックの速度(一律の強さ)
     float  knock_friction_  = 6.0f;                     //!< ノックバックの摩擦(毎秒の減速率)

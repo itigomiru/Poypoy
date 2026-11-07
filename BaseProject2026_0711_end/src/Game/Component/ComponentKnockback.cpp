@@ -5,6 +5,7 @@
 #pragma once
 #include <Game/Component/ComponentKnockback.h>
 #include <Game/Component/ComponentThrowable.h>
+#include <Game/Component/ComponentCrouch.h>
 #include <Game/PoyPoy_Character.h>
 #include <Game/PoyPoy_Throwable.h>
 #include <cmath>
@@ -63,7 +64,19 @@ void ComponentKnockback::Update()
 
     if(invincible_left_ > 0.0f) {
         invincible_left_ -= dt;
-        if(invincible_left_ > 0.0f) {
+    if(dodge_invincible_left_ > 0.0f) {
+        // 前転回避の無敵時間: 点滅させずに当たり判定なしだけ続ける
+        dodge_invincible_left_ -= dt;
+        if(dodge_invincible_left_ > 0.0f)
+            return;
+
+        // 前転回避の無敵時間終了: 当たり判定だけ戻す(モデルの表示は触らない)
+        dodge_invincible_left_ = 0.0f;
+        if(auto col = target_.lock())
+            col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, false);
+    }
+
+    if(invincible_left_ > 0.0f) {
             // 無敵時間中: モデルを点滅させる
             flash_left_ -= dt;
             if(flash_left_ <= 0.0f) {
@@ -96,8 +109,8 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
     if(hitInfo.hit_collision_->GetCollisionGroup() != ComponentCollision::CollisionGroup::THROWABLE)
         return;
 
-    // ノックバック中・無敵時間中は当たらない
-    if(knocking_ || invincible_left_ > 0.0f)
+    // ノックバック中・無敵時間中(前転回避の無敵時間も含む)は当たらない
+    if(knocking_ || invincible_left_ > 0.0f || dodge_invincible_left_ > 0.0f)
         return;
 
     // 攻撃判定は投げたときだけONで当たって消えるので、無効な投げ物はノックバックしない
@@ -113,17 +126,29 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
     if(speed <= 0.01f)
         return;
 
-    // 投げ物の速度によらず常に同じ強さ(knock_speed_)でノックバックする
-    knock_velocity_ = vel * (knock_speed_ / speed);
+    // しゃがみ中はノックバックを無効化し、ダメージを軽減する(しゃがみパラメータは爆風処理でも使う)
+    auto crouch = GetOwner()->GetComponent<ComponentCrouch>();
+    const bool crouching = crouch && crouch->IsCrouching();
 
     // 衝突で投げ物の前進の勢いを殺してその場に落とす(オーナーのノックバックと一緒に飛ぶのを防ぐ)
     throwable->SetVelocity({0.0f, throwable->GetVelocity().y, 0.0f});
 
-    // オーナーがキャラクターなら投げ物側のダメージ分HPを減らす(Character側で0に丸める)
+    // オーナーがキャラクターなら投げ物側のダメージ分HPを減らす(Character側で0に丸める/しゃがみ中は倍率を掛ける)
     if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr())) {
-        if(auto throwable_type = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner()))
-            character->SetHP(character->GetHP() - throwable_type->GetDamage());
+        if(auto throwable_type = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner())) {
+            float damage = throwable_type->GetDamage();
+            if(crouching)
+                damage *= crouch->GetDamageScale();
+            character->SetHP(character->GetHP() - damage);
+        }
     }
+
+    // しゃがみ中はノックバックしない(軽減したダメージのみ適用)
+    if(crouching)
+        return;
+
+    // 投げ物の速度によらず常に同じ強さ(knock_speed_)でノックバックする
+    knock_velocity_ = vel * (knock_speed_ / speed);
 
     // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
     knocking_ = true;

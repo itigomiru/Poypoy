@@ -17,8 +17,8 @@ bool Spawner::Init()
 
     SetName("Spawner");
 
-    // スポーン源だと分かるように水晶モデルを大きく出して目に見えるようにする
-    AddComponent<ComponentModel>("data/Game/Models/Object/Crystal.mv1")->SetScaleAxisXYZ(1.0f);
+    // スポーン源だと分かるようにPrimitiveの輪(トロサウ)。カメラは常に下から見るので真円に見える。
+    AddComponent<ComponentModel>("data/Game/Models/Primitive/Ring.x")->SetScaleAxisXYZ(1.0f);
 
     // 生成する種類(Crystal と SmallCrystal をランダムに選ぶ)
     spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<Crystal>(); });
