@@ -4,6 +4,7 @@
 //---------------------------------------------------------------------------
 #include "PoyPoy_Title.h"
 #include "InGame.h"
+#include "PoyPoy_UI.h"
 
 #include <System/Scene.h>
 #include <System/Component/ComponentModel.h>
@@ -16,6 +17,9 @@ namespace PoyPoy {
 
 bool PoyPoy_Title::Init()
 {
+    // タイトル画面にもUIを表示する
+    Scene::Object::Create<PoyPoy_UI>();
+
     // 最初に1回動作する
     // ただし trueを返さなければ Initに何回も来る仕様。
     auto camera = Scene::Object::Create<Object>("Camera");

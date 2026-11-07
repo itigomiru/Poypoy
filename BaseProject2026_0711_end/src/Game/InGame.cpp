@@ -9,6 +9,8 @@
 #include "PoyPoy_Dummy.h"
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
+#include "PoyPoy_ThrowableObject.h"
+#include "PoyPoy_UI.h"
 #include "PoyPoy_Crystal.h"
 #include "PoyPoy_Spawner.h"
 
@@ -34,6 +36,9 @@ bool InGame::Init()
 
     // 飛び回ってランダムに投げ物を生成するスポーン源
     Scene::Object::Create<Spawner>()->SetTranslate(float3(0, 25.0f, 0));
+
+    // ゲーム画面にUIを表示する
+    Scene::Object::Create<PoyPoy_UI>();
 
     return true;
 }
