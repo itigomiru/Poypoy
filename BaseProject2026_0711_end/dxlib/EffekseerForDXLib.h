@@ -1,6 +1,4 @@
-﻿
-#pragma once
-
+﻿#pragma once
 #include "DxLib.h"
 #include "Effekseer.h"
 #include "EffekseerRendererDX11.h"
@@ -12,80 +10,95 @@
 
 #ifdef _WIN64
 
-#if _MSC_VER >= 1920
+#if _MSC_VER >= 1950
+
+#if _DEBUG
+#pragma comment(lib, "Effekseer_vs2026_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2026_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2026_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2026_x64_d.lib")
+#else
+#pragma comment(lib, "Effekseer_vs2026_x64.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2026_x64.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2026_x64.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2026_x64.lib")
+#endif
+
+#elif _MSC_VER >= 1930
+
+#if _DEBUG
+#pragma comment(lib, "Effekseer_vs2022_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2022_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2022_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2022_x64_d.lib")
+#else
+#pragma comment(lib, "Effekseer_vs2022_x64.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2022_x64.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2022_x64.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2022_x64.lib")
+#endif
+
+#elif _MSC_VER >= 1920
 
 #if _DEBUG
 #pragma comment(lib, "Effekseer_vs2019_x64_d.lib")
 #pragma comment(lib, "EffekseerRendererDX9_vs2019_x64_d.lib")
 #pragma comment(lib, "EffekseerRendererDX11_vs2019_x64_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2019_x64_d.lib")
 #else
 #pragma comment(lib, "Effekseer_vs2019_x64.lib")
 #pragma comment(lib, "EffekseerRendererDX9_vs2019_x64.lib")
 #pragma comment(lib, "EffekseerRendererDX11_vs2019_x64.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2019_x64.lib")
+
 #endif
 
-#elif _MSC_VER >= 1910
+#endif
+
+#else
+
+#if _MSC_VER >= 1950
 
 #if _DEBUG
-#pragma comment(lib, "Effekseer_vs2017_x64_d.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2017_x64_d.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2017_x64_d.lib")
+#pragma comment(lib, "Effekseer_vs2026_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2026_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2026_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2026_x86_d.lib")
 #else
-#pragma comment(lib, "Effekseer_vs2017_x64.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2017_x64.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2017_x64.lib")
+#pragma comment(lib, "Effekseer_vs2026_x86.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2026_x86.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2026_x86.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2026_x86.lib")
 #endif
 
-#elif _MSC_VER >= 1900
+#elif _MSC_VER >= 1930
 
 #if _DEBUG
-#pragma comment(lib, "Effekseer_vs2015_x64_d.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2015_x64_d.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2015_x64_d.lib")
+#pragma comment(lib, "Effekseer_vs2022_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2022_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2022_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2022_x86_d.lib")
 #else
-#pragma comment(lib, "Effekseer_vs2015_x64.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2015_x64.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2015_x64.lib")
-#endif
+#pragma comment(lib, "Effekseer_vs2022_x86.lib")
+#pragma comment(lib, "EffekseerRendererDX9_vs2022_x86.lib")
+#pragma comment(lib, "EffekseerRendererDX11_vs2022_x86.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2022_x86.lib")
 #endif
 
-#else
-
-#if _MSC_VER >= 1920
+#elif _MSC_VER >= 1920
 
 #if _DEBUG
 #pragma comment(lib, "Effekseer_vs2019_x86_d.lib")
 #pragma comment(lib, "EffekseerRendererDX9_vs2019_x86_d.lib")
 #pragma comment(lib, "EffekseerRendererDX11_vs2019_x86_d.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2019_x86_d.lib")
 #else
 #pragma comment(lib, "Effekseer_vs2019_x86.lib")
 #pragma comment(lib, "EffekseerRendererDX9_vs2019_x86.lib")
 #pragma comment(lib, "EffekseerRendererDX11_vs2019_x86.lib")
+#pragma comment(lib, "EffekseerRendererCommon_vs2019_x86.lib")
 #endif
 
-#elif _MSC_VER >= 1910
-
-#if _DEBUG
-#pragma comment(lib, "Effekseer_vs2017_x86_d.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2017_x86_d.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2017_x86_d.lib")
-#else
-#pragma comment(lib, "Effekseer_vs2017_x86.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2017_x86.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2017_x86.lib")
-#endif
-
-#elif _MSC_VER >= 1900
-
-#if _DEBUG
-#pragma comment(lib, "Effekseer_vs2015_x86_d.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2015_x86_d.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2015_x86_d.lib")
-#else
-#pragma comment(lib, "Effekseer_vs2015_x86.lib")
-#pragma comment(lib, "EffekseerRendererDX9_vs2015_x86.lib")
-#pragma comment(lib, "EffekseerRendererDX11_vs2015_x86.lib")
-#endif
 #endif
 
 #endif
@@ -97,7 +110,19 @@
 
 #ifdef _WIN64
 
-#if _MSC_VER >= 1920
+#if _MSC_VER >= 1950
+#if _DEBUG
+#pragma comment(lib, "EffekseerForDXLib_vs2026_x64_d.lib")
+#else
+#pragma comment(lib, "EffekseerForDXLib_vs2026_x64.lib")
+#endif
+#elif _MSC_VER >= 1930
+#if _DEBUG
+#pragma comment(lib, "EffekseerForDXLib_vs2022_x64_d.lib")
+#else
+#pragma comment(lib, "EffekseerForDXLib_vs2022_x64.lib")
+#endif
+#elif _MSC_VER >= 1920
 #if _DEBUG
 #pragma comment(lib, "EffekseerForDXLib_vs2019_x64_d.lib")
 #else
@@ -119,7 +144,19 @@
 
 #else
 
-#if _MSC_VER >= 1920
+#if _MSC_VER >= 1950
+#if _DEBUG
+#pragma comment(lib, "EffekseerForDXLib_vs2026_x86_d.lib")
+#else
+#pragma comment(lib, "EffekseerForDXLib_vs2026_x86.lib")
+#endif
+#elif _MSC_VER >= 1930
+#if _DEBUG
+#pragma comment(lib, "EffekseerForDXLib_vs2022_x86_d.lib")
+#else
+#pragma comment(lib, "EffekseerForDXLib_vs2022_x86.lib")
+#endif
+#elif _MSC_VER >= 1920
 #if _DEBUG
 #pragma comment(lib, "EffekseerForDXLib_vs2019_x86_d.lib")
 #else
@@ -181,6 +218,33 @@ inline int __Effekseer_FileRead_open(const char* filePath) { return FileRead_ope
 inline LONGLONG __Effekseer_FileRead_size(const char* FilePath) { return FileRead_size(FilePath); }
 #endif
 
+inline LPDIRECT3DDEVICE9 __Effekseer_DxLib_GetDirect3DDevice9()
+{
+#ifndef DX_NON_DIRECT3D9
+	return (LPDIRECT3DDEVICE9)GetUseDirect3DDevice9();
+#else // DX_NON_DIRECT3D9
+	return NULL;
+#endif
+}
+
+inline ID3D11Device* __Effekseer_DxLib_GetDirect3DDevice11()
+{
+#ifndef DX_NON_DIRECT3D11
+	return (ID3D11Device*)GetUseDirect3D11Device();
+#else // DX_NON_DIRECT3D11
+	return NULL:
+#endif
+}
+
+inline ID3D11DeviceContext* __Effekseer_DxLib_Get3D11DeviceContext()
+{
+#ifndef DX_NON_DIRECT3D11
+	return (ID3D11DeviceContext*)GetUseDirect3D11DeviceContext();
+#else // DX_NON_DIRECT3D11
+	return NULL:
+#endif
+}
+
 typedef int (*EffekseerFileOpenFunc)(const char* filePath);
 typedef LONGLONG (*EffekseerFileReadSizeFunc)(const char* filePath);
 
@@ -229,6 +293,11 @@ int Effekseer_InitDistortion(float scale = 1.0f);
 
 /**
 	@brief	Effekseerを終了する。
+*/
+void Effekseer_End();
+
+/**
+	@brief	非推奨(Effekseer_Endを使用してください)
 */
 void Effkseer_End();
 
@@ -471,9 +540,18 @@ void SetDynamicInput3DEffect(int playingEffectHandle, int32_t index, float value
 
 /**
 	@brief	Effekseerにより再生中の2Dエフェクトを更新する。
+	@note 60fpsを想定
 	@return	0:成功、-1:失敗
 */
 int UpdateEffekseer2D();
+
+/**
+	@brief	Effekseerにより再生中の2Dエフェクトを更新する。
+	@param	deltaTime	進行する1フレーム当たりの時間
+	@note 60fpsの場合は1.0f/60.0fを指定する。
+	@return	0:成功、-1:失敗
+*/
+int UpdateEffekseer2D(float deltaTime);
 
 /**
 	@brief	Effekseerにより再生中の2Dエフェクトを全て描画する。
@@ -515,11 +593,21 @@ int DrawEffekseer2D_Draw(int playingEffectHandle);
 	DrawEffekseer2Dとは併用できない。
 */
 int DrawEffekseer2D_End();
+
 /**
 	@brief	Effekseerにより再生中の3Dエフェクトを更新する。
+	@note　60fpsを想定
 	@return	0:成功、-1:失敗
 */
 int UpdateEffekseer3D();
+
+/**
+	@brief	Effekseerにより再生中の3Dエフェクトを更新する。
+	@param	deltaTime	進行する1フレーム当たりの時間
+	@note 60fpsの場合は1.0f/60.0fを指定する。
+	@return	0:成功、-1:失敗
+*/
+int UpdateEffekseer3D(float deltaTime);
 
 /**
 @brief	Effekseerにより再生中の3Dエフェクトの描画を開始する。
@@ -606,6 +694,11 @@ Effekseerの機能を直接使用しない限り、この関数は使用しな�
 	Effekseer_SetGraphicsDeviceLostCallbackFunctionsを使用しない時に、
 	この関数を呼び出されるように実装する必要がある。
 */
+void Effekseer_DeviceLost(void* Data);
+
+/**
+	@brief	非推奨(Effekseer_DeviceLostを使用してください)
+*/
 void Effkseer_DeviceLost(void* Data);
 
 /**
@@ -613,5 +706,10 @@ void Effkseer_DeviceLost(void* Data);
 	@param	Data	コールバックデータ
 	Effekseer_SetGraphicsDeviceLostCallbackFunctionsを使用しない時に、
 	この関数を呼び出されるように実装する必要がある。
+*/
+void Effekseer_DeviceRestore(void* Data);
+
+/**
+	@brief	非推奨(Effekseer_DeviceRestoreを使用してください)
 */
 void Effkseer_DeviceRestore(void* Data);

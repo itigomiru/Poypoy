@@ -143,6 +143,17 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
         }
     }
 
+    // 当たった地点にヒットエフェクトを出す(再生終了で自動消滅)
+    // 押される方向=弾かれていく方向へ正面(+Z)を向ける
+    float3 s(hit_effect_scale_, hit_effect_scale_, hit_effect_scale_);
+    float3 toward = hitInfo.push_;
+    toward.y      = 0.0f;
+    float  yaw    = 0.0f;
+    if((float)length(toward) > 0.01f)
+        toward = normalize(toward);
+    yaw = atan2f(toward.x, toward.z) * 57.2957795f + hit_effect_yaw_offset_;    // ラジアン→度
+    ComponentEffect::Object::Create(hit_effect_path_, hitInfo.hit_position_, float3(0.0f, yaw, 0.0f), s);
+
     // しゃがみ中はノックバックしない(軽減したダメージのみ適用)
     if(crouching)
         return;
