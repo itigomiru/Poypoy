@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ComponentThrowable.h"
+#include <Game/PoyPoy_Throwable.h>
 #include <System/Component/ComponentCollisionCapsule.h>
 #include <fstream>
 #include <cmath>
@@ -7,6 +8,16 @@
 void ComponentThrowable::Init()
 {
     __super::Init();
+
+    // オーナーが投げ物ベースを持っていたら、その設計値をこのコンポーネントの動作値として受け取る
+    if(auto throwable = std::dynamic_pointer_cast<PoyPoy::Throwable>(GetOwnerPtr())) {
+        throw_speed_   = throwable->GetThrowSpeed();
+        weight_        = throwable->GetWeight();
+        bounce_        = throwable->GetBounce();
+        friction_      = throwable->GetFriction();
+        gravity_accel_ = throwable->GetGravityAccel();
+        spin_          = throwable->GetSpin();
+    }
 
     // シーンに設定された値をコリジョンに反映する
     ApplySettings();

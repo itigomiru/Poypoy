@@ -4,10 +4,11 @@
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
 #include <System/Component/ComponentModel.h>
+#include <Game/PoyPoy_Character.h>
 
 namespace PoyPoy {
 USING_PTR(Dummy);
-class Dummy : public Object
+class Dummy : public Character
 {
 public:
     BP_OBJECT_DECL(Dummy, "PoyPoy::Dummy");

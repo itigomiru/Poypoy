@@ -2,11 +2,11 @@
 //!	@file	PoyPoy_Player.h
 //! @brief	PoyPoy_Player
 //---------------------------------------------------------------------------
-#include <System/Object.h>
+#include <Game/PoyPoy_Character.h>
 
 namespace PoyPoy {
 USING_PTR(Player);
-class Player : public Object
+class Player : public Character
 {
 public:
     BP_OBJECT_DECL(Player, "PoyPoy::Player");

@@ -5,6 +5,8 @@
 #pragma once
 #include <Game/Component/ComponentKnockback.h>
 #include <Game/Component/ComponentThrowable.h>
+#include <Game/PoyPoy_Character.h>
+#include <Game/PoyPoy_Throwable.h>
 #include <cmath>
 
 void ComponentKnockback::Init()
@@ -116,6 +118,12 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
 
     // 衝突で投げ物の前進の勢いを殺してその場に落とす(オーナーのノックバックと一緒に飛ぶのを防ぐ)
     throwable->SetVelocity({0.0f, throwable->GetVelocity().y, 0.0f});
+
+    // オーナーがキャラクターなら投げ物側のダメージ分HPを減らす(Character側で0に丸める)
+    if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr())) {
+        if(auto throwable_type = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner()))
+            character->SetHP(character->GetHP() - throwable_type->GetDamage());
+    }
 
     // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
     knocking_ = true;

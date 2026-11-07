@@ -3,15 +3,22 @@
 #include <Game/Component/ComponentStatePickUp.h>
 #include "ComponentStateIdleWalk.h"
 #include "ComponentPickUp.h"
+#include <Game/PoyPoy_Character.h>
 
 void ComponentPlayerState::Init()
 {
     __super::Init();
 
-    GetOwner()
-        ->AddComponent<ComponentStateIdleWalk>()    //
-        ->SetMoveSpeed(0.3f)                        //
-        ->SetRotateSpeed(20.0f);
+    auto idle = GetOwner()->AddComponent<ComponentStateIdleWalk>();
+
+    // キャラクターならステータスの素早さを移動速度に使う
+    if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr())) {
+        idle->SetMoveSpeed(character->GetMoveSpeed());
+    }
+    else {
+        idle->SetMoveSpeed(0.3f);
+    }
+    idle->SetRotateSpeed(20.0f);
 }
 
 void ComponentPlayerState::Update()

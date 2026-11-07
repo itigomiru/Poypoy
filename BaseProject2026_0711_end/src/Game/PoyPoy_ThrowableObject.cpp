@@ -20,11 +20,12 @@ bool ThrowableObject::Init()
 
     SetName("ThrowableObject");
 
-    AddComponent<ComponentModel>("data/Game/Models/Object/Crystal.mv1")->SetScaleAxisXYZ(0.2f);
+    // ベースクラス(Throwable)の設定値から見た目とコリジョンを作る
+    AddComponent<ComponentModel>(GetModelPath())->SetScaleAxisXYZ(GetModelScale());
 
     AddComponent<ComponentCollisionCapsule>()
-        ->SetRadius(5.0f)
-        ->SetHeight(38.0f)
+        ->SetRadius(GetRadius())
+        ->SetHeight(GetHeight())
         ->SetMass(10.0f)
         ->SetRotationAxisXYZ({0.0f, 0.0f, 0.0f})
         ->SetTranslate({0.0f, 0.0f, 0.0f})
@@ -34,7 +35,7 @@ bool ThrowableObject::Init()
                                (u32)ComponentCollision::CollisionGroup::ENEMY);
 
     SetRotationAxisXYZ({90.0f, 0.0f, 0.0f});
-    // 重力・投げる挙動(初速度・重さ・バウンド・摩擦)は ComponentThrowable で管理する
+    // 重力・投げる挙動(初速度・重さ・バウンド・摩擦)は ComponentThrowable がベースの設定値を受けて扱う
     AddComponent<ComponentThrowable>();
     return true;
 }

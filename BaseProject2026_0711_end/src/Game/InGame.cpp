@@ -9,7 +9,8 @@
 #include "PoyPoy_Dummy.h"
 #include "PoyPoy_Ground.h"
 #include "PoyPoy_Camera.h"
-#include "PoyPoy_ThrowableObject.h"
+#include "PoyPoy_Crystal.h"
+#include "PoyPoy_Spawner.h"
 
 namespace PoyPoy {
 
@@ -29,7 +30,10 @@ bool InGame::Init()
 
     Scene::Object::Create<Camera>();
 
-    Scene::Object::Create<ThrowableObject>()->SetTranslate(float3(0, 50.0f, 0));
+    Scene::Object::Create<Crystal>()->SetTranslate(float3(0, 50.0f, 0));
+
+    // 飛び回ってランダムに投げ物を生成するスポーン源
+    Scene::Object::Create<Spawner>()->SetTranslate(float3(0, 25.0f, 0));
 
     return true;
 }

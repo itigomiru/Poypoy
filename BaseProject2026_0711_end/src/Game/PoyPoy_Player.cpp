@@ -25,6 +25,11 @@ bool Player::Init()
 
     SetName("Player");
 
+    // キャラ別パラメータ(値は後から調整できる)
+    SetMaxHP(100.0f);
+    SetPower(10.0f);
+    SetMoveSpeed(0.3f);
+
     //auto player = Scene::Object::Create<Object>("Player");
     AddComponent<ComponentModel>("data/Game/Models/Player/Player1.mv1")
         ->SetAnimation({

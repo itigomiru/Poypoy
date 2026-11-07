@@ -17,6 +17,11 @@ bool Dummy::Init()
 
     SetName("Dummy");
 
+    // ダミー用パラメータ(将来のプレイヤー扱い。攻撃しない前提の数値)
+    SetMaxHP(80.0f);
+    SetPower(0.0f);
+    SetMoveSpeed(0.0f);
+
     AddComponent<ComponentModel>("data/Game/Models/Player/Player1.mv1")
         ->SetAnimation({
             {"idle", "data/Game/Models/Player/Anims/Idle.mv1", 1, 1.0f},    // Idle
