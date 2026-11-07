@@ -66,6 +66,14 @@ public:
     //! @return 速度
     const float3& GetVelocity() const { return velocity_; }
 
+    //! @brief 現在の速度の設定(当たりで投げの勢いを打ち消すなどに使う)
+    //! @param velocity 速度
+    void SetVelocity(const float3& velocity) { velocity_ = velocity; }
+
+    //! @brief 攻撃判定が有効かを取得(投げてから何かに当たって消えるまで有効)
+    //! @return 攻撃判定が有効か
+    bool IsArmed() const { return armed_; }
+
     //! @brief 最後に接地した地面の高さの推定値の取得
     //! @return 地面の高さ
     float GetGroundHeight() const { return ground_height_; }
@@ -77,7 +85,7 @@ private:
     float friction_      = 15.0f;     //!< 摩擦の強さ(摩擦係数 0.0f～)
     float gravity_accel_ = 98.0f;    //!< 重力加速度
 
-    float spin_ = 180.0f;    //!< 飛行中のY軸回り回転速度(度/秒 0でなし)
+    float spin_ = 180.0f;    //!< 飛行中のY軸回り回転速度の大きさ(度/秒 0でなし 向きは進行方向で決まる)
 
     float  spin_rate_   = 0.0f;            //!< 現在の回転角速度(rad/s)
     float  spin_angle_  = 0.0f;            //!< 投げからの累積回転角(rad)
@@ -88,6 +96,9 @@ private:
     float3 velocity_ = {0.0f, 0.0f, 0.0f};    //!< 現在の速度
     bool   held_     = false;                 //!< 持ち上げ状態か
     bool   grounded_ = false;                 //!< 前フレームに接地していたか
+
+    bool   armed_          = false;                 //!< 攻撃判定が有効か(投げてから当たって消えるまで)
+    bool   disarm_pending_ = false;                 //!< 今フレームの当たりで攻撃判定を消す予定か
 
     float  ground_height_  = 0.0f;                 //!< 接地時の地面の高さ推定値
     float3 contact_normal_ = {0.0f, 0.0f, 0.0f};   //!< デバッグ用:直近の当たり法線

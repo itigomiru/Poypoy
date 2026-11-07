@@ -6,12 +6,14 @@
 #include "PoyPoy_Player.h"
 #include "InGame.h"
 #include "Component/ComponentStateIdleWalk.h"
-#include "Component/ComponentCameraController.h"
 #include "Component/ComponentStatePickUp.h"
 #include "Component/ComponentPlayerState.h"
 #include "Component/ComponentThrowable.h"
 #include "PoyPoy_ThrowableObject.h"
 #include "Component/ComponentPickUp.h"
+#include "Component/ComponentKnockback.h"
+#include "Component/ComponentCrouch.h"
+#include "Component/ComponentDodge.h"
 #include <System/Component/ComponentModel.h>
 #include <System/VectorMath.h>
 
@@ -23,6 +25,11 @@ bool Player::Init()
     Super::Init();
 
     SetName("Player");
+
+    // キャラ別パラメータ(値は後から調整できる)
+    SetMaxHP(100.0f);
+    SetPower(10.0f);
+    SetMoveSpeed(0.3f);
 
     //auto player = Scene::Object::Create<Object>("Player");
     AddComponent<ComponentModel>("data/Game/Models/Player/Player1.mv1")
@@ -36,8 +43,6 @@ bool Player::Init()
     SetTranslate({0, 0, 0});
 
     AddComponent<ComponentPlayerState>();
-
-    AddComponent<ComponentCameraController>();
 
     auto col = AddComponent<ComponentCollisionCapsule>()    //
                    ->SetRadius(5.0f)
@@ -54,6 +59,15 @@ bool Player::Init()
         ->SetCollisionGroup(ComponentCollision::CollisionGroup::PLAYER);
 
     AddComponent<ComponentPickUp>();
+
+    // Cキー長押しでしゃがみ(しゃがみ中はノックバック無効・ダメージ軽減)
+    AddComponent<ComponentCrouch>();
+
+    // 左Shift押下で前転回避(前転中は移動入力を無視して前転の移動に任せる)
+    AddComponent<ComponentDodge>();
+
+    // 投げ物を体躯で受けるとノックバックする(Dummyと同じ仕組み)
+    AddComponent<ComponentKnockback>();
 
     return true;
 }

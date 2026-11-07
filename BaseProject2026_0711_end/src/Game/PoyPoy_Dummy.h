@@ -3,10 +3,12 @@
 //! @brief	PoyPoy_Dummy
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
+#include <System/Component/ComponentModel.h>
+#include <Game/PoyPoy_Character.h>
 
 namespace PoyPoy {
 USING_PTR(Dummy);
-class Dummy : public Object
+class Dummy : public Character
 {
 public:
     BP_OBJECT_DECL(Dummy, "PoyPoy::Dummy");
@@ -14,9 +16,5 @@ public:
     //! @brief 初期化
     //! @return 初期化終了
     bool Init() override;
-
-    void Update() override;
-
-    void OnHit(const ComponentCollision::HitInfo& hitInfo) override;
 };
 }    // namespace PoyPoy

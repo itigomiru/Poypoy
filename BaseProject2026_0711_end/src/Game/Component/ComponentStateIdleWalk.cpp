@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include <Game/Component/ComponentStateIdleWalk.h>
+#include <Game/Component/ComponentKnockback.h>
+#include <Game/Component/ComponentCrouch.h>
+#include <Game/Component/ComponentDodge.h>
 
 void ComponentStateIdleWalk::Init()
 {
@@ -15,6 +18,22 @@ void ComponentStateIdleWalk::Update()
     // オーナー(自分がAddComponentされたObject)を取得します
     // 処理されるときは必ずOwnerは存在しますので基本的にnullptrチェックは必要ありません
     auto owner = GetOwner();
+
+    // ノックバック中は移動入力を無視してノックバックの移動に任せる
+    if(auto knock = owner->GetComponent<ComponentKnockback>()) {
+        if(knock->IsKnockingBack()) {
+            if(auto mdl = owner->GetComponent<ComponentModel>())
+                mdl->PlayAnimationNoSame("idle", true);
+            return;
+        }
+    }
+
+    // 前転中は移動入力を無視して前転の移動に任せる
+    if(auto dodge = owner->GetComponent<ComponentDodge>()) {
+        if(dodge->IsDodging()) {
+            return;
+        }
+    }
 
     // 移動方向
     float3 dir{0, 0, 0};
@@ -36,8 +55,15 @@ void ComponentStateIdleWalk::Update()
         // その方向の移動スピードを1とし、スピードを掛け合わせる
         dir = normalize(dir);
 
+        // しゃがみ中は移動速度を倍率で落とす
+        float speed = move_speed_;
+        if(auto crouch = owner->GetComponent<ComponentCrouch>()) {
+            if(crouch->IsCrouching())
+                speed *= crouch->GetMoveScale();
+        }
+
         // キャラのローカル方向で移動をさせる
-        owner->AddTranslate(dir * move_speed_, true);
+        owner->AddTranslate(dir * speed, true);
 
         // モデルを移動の方向に向けます
         if(auto mdl = owner->GetComponent<ComponentModel>()) {

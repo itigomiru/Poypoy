@@ -1,4 +1,5 @@
-﻿#include <System/Scene.h>
+﻿
+#include <System/Scene.h>
 
 namespace Sample::GameSample {
 
