@@ -3,6 +3,7 @@
 //! @brief	PoyPoy_UI
 //---------------------------------------------------------------------------
 #include <System/Scene.h>
+#include "PoyPoy_Character.h"
 
 namespace PoyPoy {
 USING_PTR(PoyPoy_UI);
@@ -13,10 +14,8 @@ static constexpr int UI_MAX_PLAYERS = 4;
 //! @brief プレイヤーUI情報
 struct PlayerUI
 {
-    float hp_     = 3.0f;    //!< 現在体力（0～max_hp_、ハート1つの縮小率）
-    int   max_hp_ = 3;       //!< 最大体力
-    bool retire_ = false;    //!< リタイア状態
-    int  faceGraph_ = -1;    //!< 顔画像グラフハンドル（-1 = 未設定）
+    bool retire_    = false;    //!< リタイア状態
+    int  faceGraph_ = -1;       //!< 顔画像グラフハンドル（-1 = 未設定）
 };
 
 //! @brief ゲーム画面に表示するUI
@@ -56,13 +55,6 @@ private:
     //! @param [in]    faceGraph 顔画像グラフハンドル（-1 = プリミティブ描画）
     void drawFace(int x, int y, int size, unsigned int color, bool retire, int faceGraph);
 
-    //! @brief ハート表示
-    //! @param [in]    x       左上X座標
-    //! @param [in]    y       左上Y座標
-    //! @param [in]    size    ハートサイズ
-    //! @param [in]    color   ハート色
-    void drawHeart(int x, int y, int size, unsigned int color);
-
     //! @brief 顔画像ロード
     //! @param [in]    index プレイヤーインデックス
     //! @param [in]    path  画像パス
@@ -72,6 +64,8 @@ private:
     float timer_ = 83.0f;    //!< 残り時間(秒) ※開始は01:23
 
     PlayerUI players_[UI_MAX_PLAYERS];    //!< プレイヤー情報
+
+    std::vector<std::weak_ptr<Character>> characters_;    //!< HP表示対象のキャラクター(毎フレーム取得)
 };
 
 }    // namespace PoyPoy

@@ -52,6 +52,10 @@ public:
     //! @return 速度
     float GetKnockSpeed() const { return knock_speed_; }
 
+    //! @brief 爆風で吹き飛ばす(爆弾側から呼ぶ。爆心から離れる方向へ直撃と同じノックバックを適用)
+    //! @param away_dir 爆心から対象へ向かう世界空間方向
+    void KnockBack(const float3& away_dir);
+
     //! @brief ノックバック終了後の無敵時間の設定
     //! @param time 無敵時間(秒)
     void SetInvincibleTime(float time) { invincible_time_ = time; }
@@ -78,25 +82,25 @@ private:
     ComponentCollisionCapsuleWeakPtr target_{};    //!< 自分が追加した受け用コリジョン(循環参照回避のためweak)
     ComponentModelWeakPtr            mdl_{};       //!< 無敵中の点滅制御用モデル(循環参照回避のためweak)
 
-    bool   knocking_        = false;                    //!< ノックバック中か
-    float  invincible_left_ = 0.0f;                     //!< ノックバック終了後の無敵時間の残り(秒)
-    float  dodge_invincible_left_ = 0.0f;               //!< 前転回避による点滅なしの無敵時間の残り(秒)
-    float3 knock_velocity_  = {0.0f, 0.0f, 0.0f};       //!< ノックバックの速度
-    float  knock_speed_     = 40.0f;                    //!< ノックバックの速度(一律の強さ)
-    float  knock_friction_  = 6.0f;                     //!< ノックバックの摩擦(毎秒の減速率)
-    float  invincible_time_ = 2.0f;                     //!< ノックバック終了後の無敵時間(秒)
-    bool   flash_on_        = true;                     //!< 点滅の表示状態
-    float  flash_left_      = 0.0f;                     //!< 次の点滅切り替えまでの残り(秒)
-    float  flash_interval_  = 0.12f;                    //!< 点滅の切り替え間隔(秒)
+    bool   knocking_              = false;                 //!< ノックバック中か
+    float  invincible_left_       = 0.0f;                  //!< ノックバック終了後の無敵時間の残り(秒)
+    float  dodge_invincible_left_ = 0.0f;                  //!< 前転回避による点滅なしの無敵時間の残り(秒)
+    float3 knock_velocity_        = {0.0f, 0.0f, 0.0f};    //!< ノックバックの速度
+    float  knock_speed_           = 40.0f;                 //!< ノックバックの速度(一律の強さ)
+    float  knock_friction_        = 6.0f;                  //!< ノックバックの摩擦(毎秒の減速率)
+    float  invincible_time_       = 2.0f;                  //!< ノックバック終了後の無敵時間(秒)
+    bool   flash_on_              = true;                  //!< 点滅の表示状態
+    float  flash_left_            = 0.0f;                  //!< 次の点滅切り替えまでの残り(秒)
+    float  flash_interval_        = 0.12f;                 //!< 点滅の切り替え間隔(秒)
 
-    float  target_radius_    = 5.0f;                    //!< 受け用コリジョンの半径
-    float  target_height_    = 21.0f;                   //!< 受け用コリジョンの高さ
-    float3 target_translate_ = {0.0f, 0.0f, 0.0f};      //!< 受け用コリジョンのオフセット
-    float  target_mass_      = 50.0f;                   //!< 受け用コリジョンの質量(投げ物より押し負けない重さ)
+    float  target_radius_    = 5.0f;                  //!< 受け用コリジョンの半径
+    float  target_height_    = 21.0f;                 //!< 受け用コリジョンの高さ
+    float3 target_translate_ = {0.0f, 0.0f, 0.0f};    //!< 受け用コリジョンのオフセット
+    float  target_mass_      = 50.0f;                 //!< 受け用コリジョンの質量(投げ物より押し負けない重さ)
 
-    std::string hit_effect_path_ = "data/Game/Models/Effect/hit.efkefc";    //!< 投げ物がヒットした地点に出すヒットエフェクト(.efkefc)
-    float       hit_effect_scale_ = 2.5f;                                   //!< ヒットエフェクトの表示拡大率
-    float       hit_effect_yaw_offset_ = 90.0f;                             //!< エフェクトの飛散軸が正面(Z)と何度ずれているか
+    std::string hit_effect_path_       = "data/Game/Models/Effect/hit.efkefc";    //!< 投げ物がヒットした地点に出すヒットエフェクト(.efkefc)
+    float       hit_effect_scale_      = 2.5f;                                    //!< ヒットエフェクトの表示拡大率
+    float       hit_effect_yaw_offset_ = 90.0f;                                   //!< エフェクトの飛散軸が正面(Z)と何度ずれているか
     // エンジン同梱Effekseerを1.80.8へ更新済み(1810=新形式対応、旧1610も後方互換で読める)。
 
     //--------------------------------------------------------------------

@@ -26,7 +26,7 @@ void ComponentThrowable::Init()
     auto capsule = owner_->GetComponent<ComponentCollisionCapsule>();
     if(capsule) {
         std::weak_ptr<ComponentThrowable> weak = std::dynamic_pointer_cast<ComponentThrowable>(shared_from_this());
-        capsule->OnHitFunc = [weak](const ComponentCollision::HitInfo& hit_info) {
+        capsule->OnHitFunc                     = [weak](const ComponentCollision::HitInfo& hit_info) {
             if(auto self = weak.lock())
                 self->OnContact(hit_info);
         };
@@ -47,8 +47,8 @@ void ComponentThrowable::Update()
 
     // 持ち上げ中は重力も移動も行わない(位置はComponentPickUpが制御する)
     if(held_) {
-        velocity_  = {0.0f, 0.0f, 0.0f};
-        grounded_  = false;
+        velocity_ = {0.0f, 0.0f, 0.0f};
+        grounded_ = false;
         return;
     }
 
@@ -76,7 +76,7 @@ void ComponentThrowable::Update()
 
         if(was_grounded) {
             float spin_damp = 1.0f - friction_ * dt;
-            spin_rate_ = spin_damp > 0.0f ? spin_rate_ * spin_damp : 0.0f;
+            spin_rate_      = spin_damp > 0.0f ? spin_rate_ * spin_damp : 0.0f;
         }
         if(spin_rate_ != 0.0f) {
             spin_angle_ += spin_rate_ * dt;
@@ -99,11 +99,9 @@ void ComponentThrowable::Update()
         }
         if(dbg.is_open()) {
             auto mat = owner_->GetWorldMatrix().translate();
-            dbg << dbg_frame++ << ',' << owner_->GetName().data() << ",0," << (was_grounded ? 1 : 0) << ','
-                << mat.x << ',' << mat.y << ',' << mat.z << ','
-                << velocity_.x << ',' << velocity_.y << ',' << velocity_.z << ','
-                << contact_pen_ << ',' << contact_normal_.x << ',' << contact_normal_.y << ',' << contact_normal_.z << ','
-                << dbg_contacts_ << ',' << friction_ << ',' << dt << '\n';
+            dbg << dbg_frame++ << ',' << owner_->GetName().data() << ",0," << (was_grounded ? 1 : 0) << ',' << mat.x << ',' << mat.y << ',' << mat.z << ','
+                << velocity_.x << ',' << velocity_.y << ',' << velocity_.z << ',' << contact_pen_ << ',' << contact_normal_.x << ',' << contact_normal_.y << ','
+                << contact_normal_.z << ',' << dbg_contacts_ << ',' << friction_ << ',' << dt << '\n';
             dbg.flush();
         }
         dbg_contacts_ = 0;
@@ -122,12 +120,15 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
         return;
 
     // オーバーラップ設定の相手は素通りさせる
-    if(capsule->IsOverlap(hitInfo.hit_collision_->GetCollisionGroup()) ||
-       hitInfo.hit_collision_->IsOverlap(capsule->GetCollisionGroup()))
+    if(capsule->IsOverlap(hitInfo.hit_collision_->GetCollisionGroup()) || hitInfo.hit_collision_->IsOverlap(capsule->GetCollisionGroup()))
         return;
 
     // 実ヒットした攻撃判定はこの当たりフレームの終わりで消す
     disarm_pending_ = true;
+
+    // オーバーラップでない実ヒットなので、爆発などのトリガーを呼ぶ
+    if(contact_func_)
+        contact_func_();
 
     // 渡されたpush_は質量按分されて減るので、100%分のめり込み量を自分で調べる。
     // エンジンが既に位置補正を済ませていると計測値は0になるため、その場合は
@@ -171,17 +172,17 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
         // 1フレーム分の重力が生む程度の接触速度ならバウンドではなく接地として扱う
         float contact_limit = gravity_accel_ * dt * 1.5f;
         if(vn < -contact_limit && bounce_ > 0.0f) {
-            velocity_ -= normal * vn * (1.0f + bounce_);    // バウンド
-            spin_rate_ = -spin_rate_;                        // 跳ね返るたびに逆回転へ
+            velocity_  -= normal * vn * (1.0f + bounce_);    // バウンド
+            spin_rate_  = -spin_rate_;                       // 跳ね返るたびに逆回転へ
         }
         else
-            velocity_ -= normal * vn;                        // 吸収
+            velocity_ -= normal * vn;    // 吸収
     }
 
     // 摩擦は接線方向の速度にだけ働く
     float3 tangent = velocity_ - normal * dot(velocity_, normal);
     float  damp    = 1.0f - friction_ * dt;
-    velocity_ = normal * dot(velocity_, normal) + tangent * (damp > 0.0f ? damp : 0.0f);
+    velocity_      = normal * dot(velocity_, normal) + tangent * (damp > 0.0f ? damp : 0.0f);
 
     // 接地時に極端に遅い速度は停止として扱い、摩擦で確実に止める
     if(normal.y > 0.5f && (float)length(velocity_) < 0.5f)
@@ -263,7 +264,7 @@ void ComponentThrowable::Throw(const float3& dir)
     // 水平方向へ設定された初速度を与える
     float3 direction = dir;
     direction.y      = 0.0f;
-    float  len       = sqrtf(dot(direction, direction));
+    float len        = sqrtf(dot(direction, direction));
     velocity_        = len > 0.0f ? direction * (throw_speed_ / len) : float3(0.0f, 0.0f, 0.0f);
 
     // 投げた瞬間の姿态を捕捉し、長い軸(ローカルY軸)回りの回転をそこからの相対で掛ける
@@ -271,9 +272,9 @@ void ComponentThrowable::Throw(const float3& dir)
     spin_base_x_ = owner_->GetVectorAxisX();
     spin_base_z_ = owner_->GetVectorAxisZ();
     // 進行方向(軸と直交する投げ方向の成分)が正方向なら正回転、逆向きなら逆回転
-    float3 roll_dir  = cross(spin_axis_, {0.0f, 1.0f, 0.0f});
-    spin_rate_       = spin_ * (3.14159265f / 180.0f) * ((float)dot(velocity_, roll_dir) >= 0.0f ? 1.0f : -1.0f);
-    spin_angle_      = 0.0f;
+    float3 roll_dir = cross(spin_axis_, {0.0f, 1.0f, 0.0f});
+    spin_rate_      = spin_ * (3.14159265f / 180.0f) * ((float)dot(velocity_, roll_dir) >= 0.0f ? 1.0f : -1.0f);
+    spin_angle_     = 0.0f;
 }
 
 void ComponentThrowable::ApplySettings()

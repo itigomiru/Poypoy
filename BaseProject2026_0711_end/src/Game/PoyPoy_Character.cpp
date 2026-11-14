@@ -4,6 +4,7 @@
 //---------------------------------------------------------------------------
 
 #include "PoyPoy_Character.h"
+#include <System/Scene.h>
 
 namespace PoyPoy {
 //! @brief 初期化
@@ -61,6 +62,28 @@ CharacterPtr Character::SetMoveSpeed(float speed)
     move_speed_ = speed;
 
     return std::static_pointer_cast<Character>(SharedThis());
+}
+
+//! @brief ダメージ適用(HPが減って0以下になったら消滅処理へ進む)
+//! @param damage ダメージ量(0以下は無視)
+void Character::ApplyDamage(float damage)
+{
+    if(damage <= 0.0f || dying_)
+        return;
+
+    SetHP(GetHP() - damage);
+
+    if(!IsAlive()) {
+        dying_ = true;
+        OnDeath();
+    }
+}
+
+//! @brief HP0での死亡処理(既定ではシーンからオブジェクトを消す)
+void Character::OnDeath()
+{
+    // ひとまずそのまま消す(死亡演出・スコア・リ spawn は今後の課題)
+    Scene::Object::Release(SharedThis());
 }
 
 }    // namespace PoyPoy

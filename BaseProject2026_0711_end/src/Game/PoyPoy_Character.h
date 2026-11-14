@@ -46,10 +46,21 @@ public:
     //! @brief 素早さ(移動速度)設定
     CharacterPtr SetMoveSpeed(float speed);
 
+    //! @brief ダメージ適用(HPが減って0以下になったら消滅処理へ進む)
+    //! @param damage ダメージ量(0以下は無視)
+    void ApplyDamage(float damage);
+
+    //! @brief 消滅処理に入ったか取得
+    inline bool IsDying() const { return dying_; }
+
 protected:
-    float max_hp_     = 100.0f;   //!< 最大HP
-    float hp_         = 100.0f;   //!< 現在HP
-    float power_      = 10.0f;    //!< パワー(攻撃力)
-    float move_speed_ = 0.3f;     //!< 素早さ(移動速度)
+    //! @brief HP0での死亡処理(既定ではシーンからオブジェクトを消す)
+    virtual void OnDeath();
+
+    float max_hp_     = 100.0f;    //!< 最大HP
+    float hp_         = 100.0f;    //!< 現在HP
+    float power_      = 10.0f;     //!< パワー(攻撃力)
+    float move_speed_ = 0.3f;      //!< 素早さ(移動速度)
+    bool  dying_      = false;     //!< HP0で消滅処理に入ったか
 };
 }    // namespace PoyPoy

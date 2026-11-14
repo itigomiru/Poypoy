@@ -39,6 +39,8 @@ void ComponentPickUp::ExecuteThrow()
     float3 side = cross(float3(0, 1.0f, 0.0f), dir);
     throwable_owner->SetTranslate(GetOwner()->GetWorldMatrix().translate() + float3(0, 30.0f, 0) + dir * 5.0f - side * (capsule->GetHeight() * 0.5f));
 
+    // 誰が投げたか覚えておく(爆弾など着弾効果で投げ主を攻撃しないための識別用)
+    throwable_obj_->SetThrower(GetOwnerPtr());
     throwable_obj_->Throw(dir);
 }
 
@@ -76,7 +78,7 @@ void ComponentPickUp::LateUpdate()
             // カプセルの長い軸(オーナーのY軸)を正面に対して左右横向きに向き合わせる
             float3 side{0, 0, 0};
             if(auto mdl = GetOwner()->GetComponent<ComponentModel>()) {
-                matrix m = mdl->GetWorldMatrix();
+                matrix m       = mdl->GetWorldMatrix();
                 float3 forward = {-m._31, m._32, -m._33};
                 side           = cross(float3(0, 1.0f, 0.0f), forward);
                 if((float)length(forward) > 0.001f && (float)length(side) > 0.001f) {
@@ -85,7 +87,8 @@ void ComponentPickUp::LateUpdate()
                     throwable_owner->SetVectorAxisX(forward);
                     throwable_owner->SetVectorAxisY(side);
                     throwable_owner->SetVectorAxisZ(cross(forward, side));
-                } else {
+                }
+                else {
                     side = {0, 0, 0};
                 }
             }

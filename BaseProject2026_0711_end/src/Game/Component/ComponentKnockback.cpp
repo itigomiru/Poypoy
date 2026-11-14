@@ -17,7 +17,8 @@ void ComponentKnockback::Init()
     SetName<Component>("Knockback");
 
     // 体躯と同じ形状の受け用コリジョンを自分で追加する。THROWABLEにだけ物理で当たる
-    auto target = GetOwner()->AddComponent<ComponentCollisionCapsule>()    //
+    auto target = GetOwner()
+                      ->AddComponent<ComponentCollisionCapsule>()    //
                       ->SetRadius(target_radius_)
                       ->SetHeight(target_height_)
                       ->SetMass(target_mass_)
@@ -26,7 +27,7 @@ void ComponentKnockback::Init()
                       ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::THROWABLE);
 
     std::weak_ptr<ComponentKnockback> weak = std::dynamic_pointer_cast<ComponentKnockback>(shared_from_this());
-    target->OnHitFunc = [weak](const ComponentCollision::HitInfo& hit_info) {
+    target->OnHitFunc                      = [weak](const ComponentCollision::HitInfo& hit_info) {
         if(auto self = weak.lock())
             self->OnKnockHit(hit_info);
     };
@@ -45,7 +46,7 @@ void ComponentKnockback::Update()
 
     if(knocking_) {
         // ノックバック中は移動して、摩擦で減速して止まる
-        float damp = 1.0f - knock_friction_ * dt;
+        float damp       = 1.0f - knock_friction_ * dt;
         knock_velocity_ *= damp > 0.0f ? damp : 0.0f;
 
         if((float)dot(knock_velocity_, knock_velocity_) >= 0.01f) {
@@ -64,19 +65,19 @@ void ComponentKnockback::Update()
 
     if(invincible_left_ > 0.0f) {
         invincible_left_ -= dt;
-    if(dodge_invincible_left_ > 0.0f) {
-        // 前転回避の無敵時間: 点滅させずに当たり判定なしだけ続ける
-        dodge_invincible_left_ -= dt;
-        if(dodge_invincible_left_ > 0.0f)
-            return;
+        if(dodge_invincible_left_ > 0.0f) {
+            // 前転回避の無敵時間: 点滅させずに当たり判定なしだけ続ける
+            dodge_invincible_left_ -= dt;
+            if(dodge_invincible_left_ > 0.0f)
+                return;
 
-        // 前転回避の無敵時間終了: 当たり判定だけ戻す(モデルの表示は触らない)
-        dodge_invincible_left_ = 0.0f;
-        if(auto col = target_.lock())
-            col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, false);
-    }
+            // 前転回避の無敵時間終了: 当たり判定だけ戻す(モデルの表示は触らない)
+            dodge_invincible_left_ = 0.0f;
+            if(auto col = target_.lock())
+                col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, false);
+        }
 
-    if(invincible_left_ > 0.0f) {
+        if(invincible_left_ > 0.0f) {
             // 無敵時間中: モデルを点滅させる
             flash_left_ -= dt;
             if(flash_left_ <= 0.0f) {
@@ -118,41 +119,50 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
     if(!throwable || !throwable->IsArmed())
         return;
 
+    // 着弾で爆発する投げ物は直撃ダメージを適用しない(爆発側の範囲ダメージのみが乗るようにする)
+    auto       thrower  = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner());
+    const bool explodes = thrower && thrower->ExplodesOnHit();
+
     // 投げ物の速度の水平方向へノックバックする
     float3 vel = throwable->GetVelocity();
-    vel.y = 0.0f;
+    vel.y      = 0.0f;
 
     float speed = (float)sqrtf(dot(vel, vel));
     if(speed <= 0.01f)
         return;
 
     // しゃがみ中はノックバックを無効化し、ダメージを軽減する(しゃがみパラメータは爆風処理でも使う)
-    auto crouch = GetOwner()->GetComponent<ComponentCrouch>();
+    auto       crouch    = GetOwner()->GetComponent<ComponentCrouch>();
     const bool crouching = crouch && crouch->IsCrouching();
 
     // 衝突で投げ物の前進の勢いを殺してその場に落とす(オーナーのノックバックと一緒に飛ぶのを防ぐ)
     throwable->SetVelocity({0.0f, throwable->GetVelocity().y, 0.0f});
 
-    // オーナーがキャラクターなら投げ物側のダメージ分HPを減らす(Character側で0に丸める/しゃがみ中は倍率を掛ける)
-    if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr())) {
-        if(auto throwable_type = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner())) {
-            float damage = throwable_type->GetDamage();
-            if(crouching)
-                damage *= crouch->GetDamageScale();
-            character->SetHP(character->GetHP() - damage);
+    // オーナーがキャラクターなら投げ物側のダメージ分HPを減らす(Character側で0に丸める/しゃがみ中は倍率を掛ける/HP0で消滅)
+    // 爆弾の直撃は爆発側の範囲ダメージのみ適用するため、ここでの直撃ダメージは重ねない
+    if(!explodes) {
+        if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr())) {
+            if(auto throwable_type = dynamic_cast<PoyPoy::Throwable*>(hitInfo.hit_collision_->GetOwner())) {
+                float damage = throwable_type->GetDamage();
+                if(crouching)
+                    damage *= crouch->GetDamageScale();
+                character->ApplyDamage(damage);
+            }
         }
     }
 
-    // 当たった地点にヒットエフェクトを出す(再生終了で自動消滅)
-    // 押される方向=弾かれていく方向へ正面(+Z)を向ける
-    float3 s(hit_effect_scale_, hit_effect_scale_, hit_effect_scale_);
-    float3 toward = hitInfo.push_;
-    toward.y      = 0.0f;
-    float  yaw    = 0.0f;
-    if((float)length(toward) > 0.01f)
-        toward = normalize(toward);
-    yaw = atan2f(toward.x, toward.z) * 57.2957795f + hit_effect_yaw_offset_;    // ラジアン→度
-    ComponentEffect::Object::Create(hit_effect_path_, hitInfo.hit_position_, float3(0.0f, yaw, 0.0f), s);
+    // 当たった地点にヒットエフェクトを出す(再生終了で自動消滅/爆弾は爆発エフェクトがあるので重ねない)
+    if(!explodes) {
+        // 押される方向=弾かれていく方向へ正面(+Z)を向ける
+        float3 s(hit_effect_scale_, hit_effect_scale_, hit_effect_scale_);
+        float3 toward = hitInfo.push_;
+        toward.y      = 0.0f;
+        float yaw     = 0.0f;
+        if((float)length(toward) > 0.01f)
+            toward = normalize(toward);
+        yaw = atan2f(toward.x, toward.z) * 57.2957795f + hit_effect_yaw_offset_;    // ラジアン→度
+        ComponentEffect::Object::Create(hit_effect_path_, hitInfo.hit_position_, float3(0.0f, yaw, 0.0f), s);
+    }
 
     // しゃがみ中はノックバックしない(軽減したダメージのみ適用)
     if(crouching)
@@ -160,6 +170,32 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
 
     // 投げ物の速度によらず常に同じ強さ(knock_speed_)でノックバックする
     knock_velocity_ = vel * (knock_speed_ / speed);
+
+    // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
+    knocking_ = true;
+    if(auto col = target_.lock())
+        col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, true);
+}
+
+void ComponentKnockback::KnockBack(const float3& away_dir)
+{
+    // 直撃と同じく、ノックバック中・無敵時間中は受け付けない
+    if(knocking_ || invincible_left_ > 0.0f || dodge_invincible_left_ > 0.0f)
+        return;
+
+    // しゃがみ中はノックバックしない(ダメージ倍率軽減は呼び出し側の爆風処理で適用)
+    if(auto crouch = GetOwner()->GetComponent<ComponentCrouch>(); crouch && crouch->IsCrouching())
+        return;
+
+    // 爆心から離れる方向(水平成分だけ使う)
+    float3 dir = away_dir;
+    dir.y      = 0.0f;
+    float len  = (float)sqrtf(dot(dir, dir));
+    if(len <= 0.01f)
+        return;
+
+    // 爆風に吹っ飛ぶ。投げ物速度と無関係に一定の強さ(knock_speed_)で押される
+    knock_velocity_ = dir * (knock_speed_ / len);
 
     // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
     knocking_ = true;

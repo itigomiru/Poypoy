@@ -13,6 +13,7 @@
 #include "PoyPoy_UI.h"
 #include "PoyPoy_Crystal.h"
 #include "PoyPoy_Spawner.h"
+#include "PoyPoy_Bomb.h"
 
 namespace PoyPoy {
 
@@ -29,6 +30,9 @@ bool InGame::Init()
 
     // 移動機能を持たないダミーのプレイヤー
     Scene::Object::Create<Dummy>();
+
+    // 拾って投げると導火線で爆発する爆弾(近接範囲ダメージ)
+    Scene::Object::Create<Bomb>()->SetTranslate(float3(8.0f, 5.0f, 0));
 
     Scene::Object::Create<Camera>();
 

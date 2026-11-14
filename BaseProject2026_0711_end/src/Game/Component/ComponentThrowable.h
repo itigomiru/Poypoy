@@ -3,6 +3,8 @@
 #include <System/Component/Component.h>
 #include <System/Component/ComponentCollision.h>
 
+#include <functional>
+
 USING_PTR(ComponentThrowable);
 
 class ComponentThrowable : public Component
@@ -20,6 +22,10 @@ public:
     //! @param hitInfo 当たった情報
     void OnContact(const ComponentCollision::HitInfo& hitInfo);
 
+    //! @brief オーバーラップでない実ヒット時に呼ばれるコールバックの設定(爆発などのトリガー用)
+    //! @param func コールバック
+    void SetContactFunc(std::function<void()> func) { contact_func_ = std::move(func); }
+
     //! @brief 持ち上げ状態にする(重力・移動を止める)
     void PickUp();
 
@@ -36,7 +42,11 @@ public:
 
     //! @brief 重さ(コリジョンの押し戻されにくさ)の設定
     //! @param weight 重さ(0.0f超)
-    void SetWeight(float weight) { weight_ = weight; ApplySettings(); }
+    void SetWeight(float weight)
+    {
+        weight_ = weight;
+        ApplySettings();
+    }
     //! @brief 重さの取得
     //! @return 重さ
     float GetWeight() const { return weight_; }
@@ -74,6 +84,13 @@ public:
     //! @return 攻撃判定が有効か
     bool IsArmed() const { return armed_; }
 
+    //! @brief 投げた者の設定(爆風で投げ主を攻撃しないための識別用)
+    //! @param thrower 投げた者
+    void SetThrower(const std::weak_ptr<Object>& thrower) { thrower_ = thrower; }
+    //! @brief 最後に投げた者の取得(未投げならlock()でnullptr)
+    //! @return 最後に投げた者
+    const std::weak_ptr<Object>& GetThrower() const { return thrower_; }
+
     //! @brief 最後に接地した地面の高さの推定値の取得
     //! @return 地面の高さ
     float GetGroundHeight() const { return ground_height_; }
@@ -81,29 +98,33 @@ public:
 private:
     float throw_speed_   = 50.0f;    //!< 投げたときの初速度
     float weight_        = 20.0f;    //!< 重さ(コリジョン質量)
-    float bounce_        = 0.25f;     //!< バウンドの強さ(跳返り係数 0.0f～1.0f)
-    float friction_      = 15.0f;     //!< 摩擦の強さ(摩擦係数 0.0f～)
+    float bounce_        = 0.25f;    //!< バウンドの強さ(跳返り係数 0.0f～1.0f)
+    float friction_      = 15.0f;    //!< 摩擦の強さ(摩擦係数 0.0f～)
     float gravity_accel_ = 98.0f;    //!< 重力加速度
 
     float spin_ = 180.0f;    //!< 飛行中のY軸回り回転速度の大きさ(度/秒 0でなし 向きは進行方向で決まる)
 
-    float  spin_rate_   = 0.0f;            //!< 現在の回転角速度(rad/s)
-    float  spin_angle_  = 0.0f;            //!< 投げからの累積回転角(rad)
-    float3 spin_axis_   = {0.0f, 1.0f, 0.0f};   //!< 投げ時に捕捉した回転軸(ローカルY軸)
-    float3 spin_base_x_ = {1.0f, 0.0f, 0.0f};   //!< 投げ時のX軸
-    float3 spin_base_z_ = {0.0f, 0.0f, 1.0f};   //!< 投げ時のZ軸
+    float  spin_rate_   = 0.0f;                  //!< 現在の回転角速度(rad/s)
+    float  spin_angle_  = 0.0f;                  //!< 投げからの累積回転角(rad)
+    float3 spin_axis_   = {0.0f, 1.0f, 0.0f};    //!< 投げ時に捕捉した回転軸(ローカルY軸)
+    float3 spin_base_x_ = {1.0f, 0.0f, 0.0f};    //!< 投げ時のX軸
+    float3 spin_base_z_ = {0.0f, 0.0f, 1.0f};    //!< 投げ時のZ軸
 
     float3 velocity_ = {0.0f, 0.0f, 0.0f};    //!< 現在の速度
     bool   held_     = false;                 //!< 持ち上げ状態か
     bool   grounded_ = false;                 //!< 前フレームに接地していたか
 
-    bool   armed_          = false;                 //!< 攻撃判定が有効か(投げてから当たって消えるまで)
-    bool   disarm_pending_ = false;                 //!< 今フレームの当たりで攻撃判定を消す予定か
+    bool armed_          = false;    //!< 攻撃判定が有効か(投げてから当たって消えるまで)
+    bool disarm_pending_ = false;    //!< 今フレームの当たりで攻撃判定を消す予定か
 
-    float  ground_height_  = 0.0f;                 //!< 接地時の地面の高さ推定値
-    float3 contact_normal_ = {0.0f, 0.0f, 0.0f};   //!< デバッグ用:直近の当たり法線
-    float  contact_pen_    = 0.0f;                 //!< デバッグ用:直近のめり込み量
-    int    dbg_contacts_   = 0;                    //!< デバッグ用:フレーム中の当たり呼び出し回数
+    std::weak_ptr<Object> thrower_;    //!< 最後に投げた者(爆風の投げ主除外用)
+
+    float  ground_height_  = 0.0f;                  //!< 接地時の地面の高さ推定値
+    float3 contact_normal_ = {0.0f, 0.0f, 0.0f};    //!< デバッグ用:直近の当たり法線
+    float  contact_pen_    = 0.0f;                  //!< デバッグ用:直近のめり込み量
+    int    dbg_contacts_   = 0;                     //!< デバッグ用:フレーム中の当たり呼び出し回数
+
+    std::function<void()> contact_func_;    //!< オーバーラップでない実ヒット時のコールバック(爆発トリガー用)
 
     //! @brief 設定した値をオーナーのコリジョンに適用します
     void ApplySettings();
@@ -118,10 +139,7 @@ private:
     // @param ver バージョン
     CEREAL_SAVELOAD(arc, ver)
     {
-        arc(CEREAL_NVP(throw_speed_),
-            CEREAL_NVP(weight_),
-            CEREAL_NVP(bounce_),
-            CEREAL_NVP(friction_));
+        arc(CEREAL_NVP(throw_speed_), CEREAL_NVP(weight_), CEREAL_NVP(bounce_), CEREAL_NVP(friction_));
         if(ver >= 1) {
             arc(CEREAL_NVP(gravity_accel_));
         }

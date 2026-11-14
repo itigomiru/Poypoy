@@ -20,8 +20,9 @@ bool ThrowableObject::Init()
 
     SetName("ThrowableObject");
 
-    // ベースクラス(Throwable)の設定値から見た目とコリジョンを作る
-    AddComponent<ComponentModel>(GetModelPath())->SetScaleAxisXYZ(GetModelScale());
+    // ベースクラス(Throwable)の設定値から見た目とコリジョンを作る(モデルパスが空なら見た目は作らない)
+    if(!GetModelPath().empty())
+        AddComponent<ComponentModel>(GetModelPath())->SetScaleAxisXYZ(GetModelScale());
 
     AddComponent<ComponentCollisionCapsule>()
         ->SetRadius(GetRadius())

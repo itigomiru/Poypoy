@@ -26,15 +26,15 @@ constexpr int PANEL_GAP    = 24;
 constexpr int PANEL_H      = 108;
 
 //! パネル内要素サイズ
-constexpr int FACE_SIZE  = 60;    //!< 顔アイコンサイズ
-constexpr int HEART_MIN  = 4;     //!< ハートの最小表示サイズ（これ未満は描画しない）
+constexpr int FACE_SIZE = 60;    //!< 顔アイコンサイズ
 
 //! パネル内余白
 constexpr int PANEL_PADDING = 14;
 
 //! 文字サイズ
-constexpr int FONT_TIME  = 40;    //!< 残り時間
-constexpr int FONT_LABEL = 22;    //!< 残り時間/プレイヤー番号
+constexpr int FONT_TIME   = 40;    //!< 残り時間
+constexpr int FONT_LABEL  = 22;    //!< 残り時間/プレイヤー番号
+constexpr int FONT_HP     = 26;    //!< HP数値
 constexpr int FONT_RETIRE = 22;    //!< リタイア文字
 
 //! パネル地色
@@ -43,16 +43,14 @@ const u32 COLOR_PANEL_LINE = GetColor(220, 228, 255);
 const u32 COLOR_TIME       = GetColor(255, 255, 255);
 const u32 COLOR_TIME_CAP   = GetColor(140, 180, 255);
 const u32 COLOR_LABEL      = GetColor(255, 200, 40);
-const u32 COLOR_HEART      = GetColor(230, 40, 60);
-const u32 COLOR_HEART_OFF  = GetColor(70, 70, 90);
 const u32 COLOR_RETIRE     = GetColor(220, 80, 255);
 const u32 COLOR_WHITE      = GetColor(255, 255, 255);
 
 //! プレイヤーカラー
 const u32 PLAYER_COLORS[UI_MAX_PLAYERS] = {
-    GetColor(200, 60, 60),    //!< 1P
+    GetColor(200, 60, 60),     //!< 1P
     GetColor(60, 140, 220),    //!< 2P
-    GetColor(80, 180, 90),    //!< 3P
+    GetColor(80, 180, 90),     //!< 3P
     GetColor(230, 160, 40),    //!< 4P
 };
 }    // namespace
@@ -91,6 +89,14 @@ void PoyPoy_UI::Update()
     timer_ -= GetDeltaTime();
     if(timer_ < 0.0f)
         timer_ = 0.0f;
+
+    // HP表示対象のキャラクターを毎フレーム取得(1P,2P,...の順)
+    characters_.clear();
+    for(auto& character : Scene::Object::GetArray<Character>()) {
+        if(characters_.size() >= UI_MAX_PLAYERS)
+            break;
+        characters_.push_back(character);
+    }
 }
 
 void PoyPoy_UI::LateDraw()
@@ -102,8 +108,7 @@ void PoyPoy_UI::LateDraw()
     drawTimer(ADJUST_X, ADJUST_Y);
 
     // プレイヤーパネル
-    for(int i = 0; i < UI_MAX_PLAYERS; ++i)
-        drawPlayerPanel(i, ADJUST_X, ADJUST_Y);
+    for(int i = 0; i < UI_MAX_PLAYERS; ++i) drawPlayerPanel(i, ADJUST_X, ADJUST_Y);
 
     // フォントサイズを元に戻す
     SetFontSize(16);
@@ -121,25 +126,17 @@ void PoyPoy_UI::drawTimer(float adjust_x, float adjust_y)
     DrawRoundRect(x, y, x + w, y + h, 12, 12, COLOR_PANEL_LINE, FALSE);
 
     // 残り時間 (MM:SS)
-    int   total = static_cast<int>(timer_);
-    int   min   = total / 60;
-    int   sec   = total % 60;
-    auto  text  = std::format("{:02d}:{:02d}", min, sec);
+    int  total = static_cast<int>(timer_);
+    int  min   = total / 60;
+    int  sec   = total % 60;
+    auto text  = std::format("{:02d}:{:02d}", min, sec);
 
     SetFontSize(static_cast<int>(FONT_TIME * adjust_x));
-    DrawString(x + static_cast<int>(16 * adjust_x),
-               y + static_cast<int>(8 * adjust_y),
-               text.c_str(),
-               COLOR_TIME,
-               COLOR_PANEL);
+    DrawString(x + static_cast<int>(16 * adjust_x), y + static_cast<int>(8 * adjust_y), text.c_str(), COLOR_TIME, COLOR_PANEL);
 
     // "TIME" 表示
     SetFontSize(static_cast<int>(FONT_LABEL * adjust_x));
-    DrawString(x + static_cast<int>(16 * adjust_x),
-               y + static_cast<int>(50 * adjust_y),
-               "TIME",
-               COLOR_TIME_CAP,
-               COLOR_PANEL);
+    DrawString(x + static_cast<int>(16 * adjust_x), y + static_cast<int>(50 * adjust_y), "TIME", COLOR_TIME_CAP, COLOR_PANEL);
 }
 
 void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
@@ -159,11 +156,7 @@ void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
     // プレイヤー番号
     SetFontSize(static_cast<int>(FONT_LABEL * adjust_x));
     auto label = std::format("{}P", index + 1);
-    DrawString(px + static_cast<int>(PANEL_PADDING * adjust_x),
-               py + static_cast<int>(8 * adjust_y),
-               label.c_str(),
-               COLOR_LABEL,
-               COLOR_PANEL);
+    DrawString(px + static_cast<int>(PANEL_PADDING * adjust_x), py + static_cast<int>(8 * adjust_y), label.c_str(), COLOR_LABEL, COLOR_PANEL);
 
     // 顔アイコン
     int face_size = static_cast<int>(FACE_SIZE * adjust_x);
@@ -171,36 +164,35 @@ void PoyPoy_UI::drawPlayerPanel(int index, float adjust_x, float adjust_y)
     int face_y    = py + static_cast<int>(34 * adjust_y);
     drawFace(face_x, face_y, face_size, PLAYER_COLORS[index], player.retire_, player.faceGraph_);
 
-    // ハート / リタイア表示
+    // HP数値 / リタイア表示
     int info_x = face_x + face_size + static_cast<int>(14 * adjust_x);
     int info_y = face_y;
+
+    auto character = (index < static_cast<int>(characters_.size())) ? characters_[index].lock() : nullptr;
 
     if(player.retire_) {
         // リタイアは文字と×表示
         SetFontSize(static_cast<int>(FONT_RETIRE * adjust_x));
         DrawString(info_x, info_y, "RETIRE!", COLOR_RETIRE, COLOR_PANEL);
     }
-    else {
-        // 大きなハート1つ（体力に応じて縮小）
+    else if(character) {
+        // 実HPを数値表示「現在 / 最大」
         int area_x = info_x;
-        int area_y = info_y;
         int area_w = px + panel_w - static_cast<int>(PANEL_PADDING * adjust_x) - area_x;
-        int area_h = py + panel_h - static_cast<int>(PANEL_PADDING * adjust_y) - area_y;
-        int full   = std::min(area_w, area_h);
+        int area_h = py + panel_h - static_cast<int>(PANEL_PADDING * adjust_y) - info_y;
 
-        if(full >= HEART_MIN) {
-            float ratio = (player.max_hp_ > 0) ? std::clamp(player.hp_ / player.max_hp_, 0.0f, 1.0f) : 0.0f;
+        auto text = std::format("{:.0f} / {:.0f}", character->GetHP(), character->GetMaxHP());
+        int  font = static_cast<int>(FONT_HP * adjust_x);
+        SetFontSize(font);
+        int text_w = GetDrawStringWidth(text.c_str(), font);
+        int text_x = area_x + (area_w - text_w) / 2;
+        int text_y = info_y + (area_h - font) / 2;
 
-            // 背景（最大体力分のハート）
-            int base_x = area_x + (area_w - full) / 2;
-            drawHeart(base_x, area_y, full, COLOR_HEART_OFF);
+        // 体力が少ないほど赤へ寄る
+        float ratio = (character->GetMaxHP() > 0.0f) ? std::clamp(character->GetHP() / character->GetMaxHP(), 0.0f, 1.0f) : 0.0f;
+        u32   color = GetColor(255, static_cast<u8>(ratio * 255), static_cast<u8>(ratio * 255));
 
-            // 現在体力分のハート（下端を揃えて縮める）
-            int cur = static_cast<int>(full * ratio);
-            if(cur >= HEART_MIN) {
-                drawHeart(base_x + (full - cur) / 2, area_y + (full - cur), cur, COLOR_HEART);
-            }
-        }
+        DrawString(text_x, text_y, text.c_str(), color, COLOR_PANEL);
     }
 }
 
@@ -208,7 +200,8 @@ void PoyPoy_UI::drawFace(int x, int y, int size, unsigned int color, bool retire
 {
     if(faceGraph >= 0) {
         DrawExtendGraph(x, y, x + size, y + size, faceGraph, TRUE);
-    } else {
+    }
+    else {
         // 顔アイコン
         DrawRoundRect(x, y, x + size, y + size, size / 6, size / 6, color, TRUE);
 
@@ -241,15 +234,6 @@ bool PoyPoy_UI::loadFaceGraph(int index, const char* path)
     return false;
 }
 
-void PoyPoy_UI::drawHeart(int x, int y, int size, unsigned int color)
-{
-    // 2つの円と三角形でハートを描画する
-    int r = size / 4;
-    DrawCircle(x + r, y + r, r, color, TRUE);                          // 左の膨らみ
-    DrawCircle(x + r * 3, y + r, r, color, TRUE);                      // 右の膨らみ
-    DrawTriangle(x, y + r * 2, x + size, y + r * 2, x + size / 2, y + size, color, TRUE);    // 下部
-}
-
 void PoyPoy_UI::GUI()
 {
     Super::GUI();
@@ -259,7 +243,17 @@ void PoyPoy_UI::GUI()
     for(int i = 0; i < UI_MAX_PLAYERS; ++i) {
         std::string name = std::format("{}P", i + 1);
         if(ImGui::TreeNode(name.c_str())) {
-            ImGui::DragFloat(u8"体力", &players_[i].hp_, 0.1f, 0.0f, static_cast<float>(players_[i].max_hp_));
+            if(i < static_cast<int>(characters_.size())) {
+                if(auto character = characters_[i].lock()) {
+                    ImGui::Text(u8"HP %.0f / %.0f", character->GetHP(), character->GetMaxHP());
+                }
+                else {
+                    ImGui::Text(u8"HP - / -");
+                }
+            }
+            else {
+                ImGui::Text(u8"HP - / -");
+            }
             ImGui::Checkbox(u8"リタイア", &players_[i].retire_);
             ImGui::TreePop();
         }
