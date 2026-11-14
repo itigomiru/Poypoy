@@ -3,22 +3,27 @@
 //! @brief	AI入力
 //---------------------------------------------------------------------------
 #pragma once
-#include <map>
 #include <random>
 #include <vector>
 #include <System/Scene.h>
 #include <System/Component/Component.h>
+#include <Game/Component/ComponentInput.h>
 
 USING_PTR(ComponentAIInput);
 
-class ComponentAIInput : public Component
+//===========================================================================
+//! @brief AI入力
+//! @details 相手との距離や向きから行動を判断し、PlayerInputと同じ押下検証APIで
+//!          仮想キーを出力します。キャラ本体は入力の出所を意識しません。
+//===========================================================================
+class ComponentAIInput : public ComponentInput
 {
 public:
     BP_COMPONENT_DECL(ComponentAIInput, u8"AI入力");
 
     void Init() override;
 
-    void Update() override;
+    void PreUpdate() override;
 
     void GUI() override;
 
@@ -29,9 +34,12 @@ public:
     ObjectPtr GetTarget() const;
 
     //! @brief 移動キーをセットします
+    //! @details オーナーに ComponentStateIdleWalk がある場合はそのキーが正です。
+    //!          IdleWalk が無いオーナーに対してだけ使われます。
     ComponentAIInputPtr SetMoveKeys(int up, int down, int left, int right);
 
     //! @brief アクションキーをセットします
+    //! @details attack は基底のアクションキーとして、他3つはAI専用の追加キーとして設定します
     ComponentAIInputPtr SetActionKeys(int attack, int defend, int dodge, int skill);
 
     //! @brief 距離判定をセットします
@@ -39,31 +47,6 @@ public:
 
     //! @brief クールダウンをセットします(フレーム)
     ComponentAIInputPtr SetCooldown(u32 attack, u32 skill);
-
-    //--------------------------------------------------------------------
-    //! @name 仮想キー入力
-    //! @details AIが出力したキー入力を物理入力(Input::)と同じ検証で読み出せます
-    //@{
-
-    //! @brief 指定キーの押下検証
-    bool IsKey(int keyID) const;
-
-    //! @brief 指定キーの1回だけ押下検証
-    bool IsKeyDown(int keyID) const;
-
-    //! @brief 指定キーが離された検証
-    bool IsKeyUp(int keyID) const;
-
-    //! @brief 指定キーの初回(1フレーム目)押下検証
-    bool IsKeyOn(int keyID) const;
-
-    //! @brief 指定キーが押されていない検証
-    bool IsKeyRelease(int keyID) const;
-
-    //! @brief 指定キーの長押し検証(指定フレーム以上押されている)
-    bool IsKeyRepeat(int keyID, u32 frame = 2) const;
-
-    //@}
 
 private:
     enum class Action
@@ -77,18 +60,10 @@ private:
         Skill,
     };
 
-    struct KeyState
-    {
-        u32 now_   = 0;
-        u32 old_   = 0;
-        u32 count_ = 0;
-    };
-
     ObjectPtr SearchTarget();
     float3    GetFrontVector() const;
     float3    GetTargetDirection(const ObjectPtr& target, float& distance) const;
     void      AddMoveKeys(std::vector<int>& presses, const float3& dir) const;
-    void      UpdateKeys(const std::vector<int>& presses);
 
     static const char* ActionName(Action action);
 
@@ -101,18 +76,16 @@ private:
 
     float3 dodge_dir_ = {0, 0, 0};    //!< 回避の横移動方向
 
-    std::map<int, KeyState> keys_;    //!< 仮想キー入力状態
-
     std::mt19937 rng_ = std::mt19937(std::random_device{}());
 
     ObjectWeakPtr target_;
 
+    // IdleWalk が無いオーナー用の移動キー(ある場合は IdleWalk のキーが正)
     int key_up_    = KEY_INPUT_W;
     int key_down_  = KEY_INPUT_S;
     int key_left_  = KEY_INPUT_A;
     int key_right_ = KEY_INPUT_D;
 
-    int key_attack_ = KEY_INPUT_SPACE;
     int key_defend_ = 0;
     int key_dodge_  = 0;
     int key_skill_  = 0;
@@ -146,7 +119,6 @@ private:
             CEREAL_NVP(key_left_),
             CEREAL_NVP(key_right_),
 
-            CEREAL_NVP(key_attack_),
             CEREAL_NVP(key_defend_),
             CEREAL_NVP(key_dodge_),
             CEREAL_NVP(key_skill_),
@@ -163,7 +135,8 @@ private:
             CEREAL_NVP(dodge_percent_),
             CEREAL_NVP(dodge_frames_));
 
-        arc(cereal::make_nvp("Component", cereal::base_class<Component>(this)));
+        // 入力の基底もたどってアクションキーを保存する
+        arc(cereal::make_nvp("Component", cereal::base_class<ComponentInput>(this)));
     }
 };
 

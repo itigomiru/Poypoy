@@ -1,10 +1,16 @@
 ﻿#pragma once
 #include "ComponentPickUp.h"
+#include <Game/Component/ComponentInput.h>
 
 void ComponentPickUp::Update()
 {
     __super::Update();
-    if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
+
+    // 入力の出所は操作タイプ(Player/AI)で切り替わります
+    // アクションキーは Player でも AI でも ComponentInput が正です
+    auto input = ComponentInput::Get(GetOwner());
+
+    if(input->IsKeyDown(input->GetActionKey())) {
         if(throwable_obj_ && !is_pickup_) {
             SetThrowableObj(throwable_obj_);
             auto throwable_owner = throwable_obj_->GetOwner();

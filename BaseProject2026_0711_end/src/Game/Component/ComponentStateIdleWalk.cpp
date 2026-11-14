@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <Game/Component/ComponentStateIdleWalk.h>
+#include <Game/Component/ComponentInput.h>
 
 void ComponentStateIdleWalk::Init()
 {
@@ -16,18 +17,21 @@ void ComponentStateIdleWalk::Update()
     // 処理されるときは必ずOwnerは存在しますので基本的にnullptrチェックは必要ありません
     auto owner = GetOwner();
 
+    // 入力の出所は操作タイプ(Player/AI)で切り替わります
+    auto input = ComponentInput::Get(owner);
+
     // 移動方向
     float3 dir{0, 0, 0};
-    if(IsKey(key_up_))
+    if(input->IsKey(key_up_))
         dir += {0, 0, -1};
 
-    if(IsKey(key_down_))
+    if(input->IsKey(key_down_))
         dir += {0, 0, 1};
 
-    if(IsKey(key_right_))
+    if(input->IsKey(key_right_))
         dir += {-1, 0, 0};
 
-    if(IsKey(key_left_))
+    if(input->IsKey(key_left_))
         dir += {1, 0, 0};
 
     // 移動キーが押されているか?
@@ -84,6 +88,11 @@ ComponentStateIdleWalkPtr ComponentStateIdleWalk::SetKeys(int up, int down, int 
     key_left_  = left;
     key_right_ = right;
     return std::dynamic_pointer_cast<ComponentStateIdleWalk>(shared_from_this());
+}
+
+ComponentStateIdleWalk::MoveKeys ComponentStateIdleWalk::GetMoveKeys() const
+{
+    return MoveKeys{key_up_, key_down_, key_left_, key_right_};
 }
 
 void ComponentStateIdleWalk::GUI()

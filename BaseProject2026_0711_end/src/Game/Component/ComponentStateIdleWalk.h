@@ -17,7 +17,20 @@ public:
 
     ComponentStateIdleWalkPtr SetRotateSpeed(const float speed);
 
+    //! @brief 移動に使うキー
+    struct MoveKeys
+    {
+        int up_;
+        int down_;
+        int left_;
+        int right_;
+    };
+
     ComponentStateIdleWalkPtr SetKeys(int up, int down, int left, int right);
+
+    //! @brief 移動キーを取得します
+    //! @details AIなど、キーを押す側はここを正にします(読まないキーを押さないため)
+    MoveKeys GetMoveKeys() const;
 
     const float GetMoveSpeed() const;
     const float GetRotateSpeed() const;

@@ -168,6 +168,9 @@ bool IsKey(int keyID)
     if(ImGui::IsAnyItemActive())
         return false;
 
+    if(IsOverKeyNum(keyID))
+        return false;
+
     return keys[key_now()][keyID];
 }
 
@@ -179,11 +182,17 @@ bool IsKeyDown(int keyID)
     if(ImGui::IsAnyItemActive())
         return false;
 
+    if(IsOverKeyNum(keyID))
+        return false;
+
     return keys[key_now()][keyID] && !keys[key_old()][keyID];
 }
 bool IsKeyUp(int keyID)
 {
     if(ImGui::IsAnyItemActive())
+        return false;
+
+    if(IsOverKeyNum(keyID))
         return false;
 
     return !keys[key_now()][keyID] && keys[key_old()][keyID];

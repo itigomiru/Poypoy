@@ -3,6 +3,10 @@
 //! @brief	AI入力
 //---------------------------------------------------------------------------
 #include <Game/Component/ComponentAIInput.h>
+#include <Game/PoyPoy_Player.h>
+#include "ComponentStateIdleWalk.h"
+
+#include <limits>
 
 void ComponentAIInput::Init()
 {
@@ -10,13 +14,15 @@ void ComponentAIInput::Init()
 
     SetName<Component>("AI Input");
 
+    control_type_ = ControlType::AI;
+
     if(!target_.lock())
         target_ = SearchTarget();
 }
 
-void ComponentAIInput::Update()
+void ComponentAIInput::PreUpdate()
 {
-    __super::Update();
+    __super::PreUpdate();
 
     if(Scene::IsPause())
         return;
@@ -83,9 +89,10 @@ void ComponentAIInput::Update()
                     presses.push_back(key_skill_);
                     skill_left_ = skill_cooldown_;
                 }
-                else if(key_attack_ != 0 && attack_left_ == 0) {
+                else if(action_key_ != 0 && attack_left_ == 0) {
+                    // アクションキーは基底(ComponentInput)が正。持ち上げ・投げと同じキー
                     action_ = Action::Attack;
-                    presses.push_back(key_attack_);
+                    presses.push_back(action_key_);
                     attack_left_ = attack_cooldown_;
                 }
                 else {
@@ -134,7 +141,7 @@ ComponentAIInputPtr ComponentAIInput::SetMoveKeys(int up, int down, int left, in
 
 ComponentAIInputPtr ComponentAIInput::SetActionKeys(int attack, int defend, int dodge, int skill)
 {
-    key_attack_ = attack;
+    SetActionKey(attack);    // 持ち上げ・投げと同じキー
     key_defend_ = defend;
     key_dodge_  = dodge;
     key_skill_  = skill;
@@ -157,56 +164,33 @@ ComponentAIInputPtr ComponentAIInput::SetCooldown(u32 attack, u32 skill)
 }
 
 //---------------------------------------------------------------------------
-// 仮想キー入力検証
-//---------------------------------------------------------------------------
-bool ComponentAIInput::IsKey(int keyID) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.now_ != 0;
-    return false;
-}
-
-bool ComponentAIInput::IsKeyDown(int keyID) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.now_ != 0 && it->second.old_ == 0;
-    return false;
-}
-
-bool ComponentAIInput::IsKeyUp(int keyID) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.now_ == 0 && it->second.old_ != 0;
-    return false;
-}
-
-bool ComponentAIInput::IsKeyOn(int keyID) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.count_ == 1;
-    return false;
-}
-
-bool ComponentAIInput::IsKeyRelease(int keyID) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.count_ == 0;
-    return true;
-}
-
-bool ComponentAIInput::IsKeyRepeat(int keyID, u32 frame) const
-{
-    if(auto it = keys_.find(keyID); it != keys_.end())
-        return it->second.count_ >= frame;
-    return false;
-}
-
-//---------------------------------------------------------------------------
 // 内部処理
 //---------------------------------------------------------------------------
 ObjectPtr ComponentAIInput::SearchTarget()
 {
-    return Scene::Object::Get<Object>("Player");
+    auto owner = GetOwnerPtr();
+    if(!owner)
+        return nullptr;
+
+    // 自分以外のキャラで一番近いものをターゲットにする
+    ObjectPtr best;
+    float     best_distance = std::numeric_limits<float>::max();
+
+    for(auto& character : Scene::Object::GetArray<PoyPoy::Player>()) {
+        if(!character || character.get() == owner.get())
+            continue;
+
+        float3 dir = character->GetWorldTranslate() - owner->GetWorldTranslate();
+        dir.y      = 0.0f;
+
+        float distance = (float)length(dir);
+        if(distance < best_distance) {
+            best_distance = distance;
+            best          = character;
+        }
+    }
+
+    return best;
 }
 
 float3 ComponentAIInput::GetFrontVector() const
@@ -252,6 +236,22 @@ void ComponentAIInput::AddMoveKeys(std::vector<int>& presses, const float3& dir)
     if(!owner || (float)length(dir) <= 0.0f)
         return;
 
+    // 移動キーは ComponentStateIdleWalk が正。
+    // IdleWalk が読まないキーIDを押しても反応しないため、
+    // 読む側のキー設定と同じキーを押してやる
+    int up    = key_up_;
+    int down  = key_down_;
+    int left  = key_left_;
+    int right = key_right_;
+
+    if(auto walk = owner->GetComponent<ComponentStateIdleWalk>()) {
+        auto keys = walk->GetMoveKeys();
+        up        = keys.up_;
+        down      = keys.down_;
+        left      = keys.left_;
+        right     = keys.right_;
+    }
+
     // 移動キーはオーナーのローカル軸で処理される(ComponentStateIdleWalkと同じ)
     // 欲しいワールド方向をローカル成分に変換してキーを選ぶ
     matrix mat = owner->GetMatrix();
@@ -260,34 +260,13 @@ void ComponentAIInput::AddMoveKeys(std::vector<int>& presses, const float3& dir)
     float lz = dot(dir, mat.axisZ());
 
     if(lz < -0.1f)
-        presses.push_back(key_up_);
+        presses.push_back(up);
     if(lz > 0.1f)
-        presses.push_back(key_down_);
+        presses.push_back(down);
     if(lx > 0.1f)
-        presses.push_back(key_left_);
+        presses.push_back(left);
     if(lx < -0.1f)
-        presses.push_back(key_right_);
-}
-
-void ComponentAIInput::UpdateKeys(const std::vector<int>& presses)
-{
-    // 1フレーム前の状態へ退避
-    for(auto& [key, state] : keys_) state.old_ = state.now_;
-
-    // このフレーム押下されたキー
-    for(auto key : presses) keys_[key].now_ = 1;
-
-    // 押されているフレーム数を更新(物理入力と同じ扱い)
-    for(auto& [key, state] : keys_) {
-        if(state.now_ != 0) {
-            state.count_++;
-            if(state.count_ >= CHAR_MAX)
-                state.count_ = CHAR_MAX;
-        }
-        else {
-            state.count_ = 0;
-        }
-    }
+        presses.push_back(right);
 }
 
 const char* ComponentAIInput::ActionName(Action action)

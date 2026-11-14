@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <Game/Component/ComponentPlayerState.h>
-#include <Game/Component/ComponentStatePickUp.h>
 #include "ComponentStateIdleWalk.h"
-#include "ComponentPickUp.h"
 
 void ComponentPlayerState::Init()
 {
@@ -18,16 +16,8 @@ void ComponentPlayerState::Update()
 {
     __super::Update();
 
-    auto owner = GetOwner();
-
     //! 今の状態を把握して状態を変えたい
-
-    if(Input::IsKeyDown(KEY_INPUT_SPACE)) {
-        //if(auto pickUp = owner->GetComponent<ComponentPickUp>()) {
-        //    if(pickUp->GetCanPickUp() == true)
-        //        ChangeState<ComponentStatePickUp>();
-        //}
-    }
+    //! 入力の出所が切り替わっても読み方は同じなので ComponentInput::Get() 経由で読む
 }
 
 void ComponentPlayerState::GUI()

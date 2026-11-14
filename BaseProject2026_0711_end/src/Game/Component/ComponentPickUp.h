@@ -13,6 +13,7 @@ public:
 
     void GUI() override;
 
+    //! @brief 持ち上げ/投げのキーは ComponentInput::GetActionKey() が正です
     void SetThrowableObj(ComponentThrowablePtr throwable_obj) { throwable_obj_ = throwable_obj; }
 
     void SetCanPickUp(bool can_pickUp) { can_pickUp_ = can_pickUp; }
