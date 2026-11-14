@@ -32,6 +32,7 @@ private:
     bool can_pickUp_ = false;
     PickUpState state_ = PickUpState::None;
     ComponentThrowablePtr throwable_obj_ = nullptr;
+    float hold_time_ = -1.0f;    //!< 保持時間上限の残り(秒。-1は無制限。0で自動で投げる)
 
     void ExecutePickUp();
     void ExecuteThrow();

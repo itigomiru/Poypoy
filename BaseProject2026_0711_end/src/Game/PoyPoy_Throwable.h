@@ -121,11 +121,14 @@ public:
         return std::static_pointer_cast<Throwable>(SharedThis());
     }
 
-    //! @brief 投げ命中時のダメージ取得(0でダメージなし)
-    inline float GetDamage() const { return damage_; }
-
     //! @brief 着弾で爆発し、直撃ダメージを適用しないか(爆弾など。ノックバックは通常通り)
     virtual bool ExplodesOnHit() const { return false; }
+
+    //! @brief ノックバック倍率(遠くへ吹き飛ばしたい投げ物は派生クラスで上げる。爆弾は2倍)
+    virtual float GetKnockbackScale() const { return 1.0f; }
+
+    //! @brief 投げ命中時のダメージ取得(0でダメージなし)
+    inline float GetDamage() const { return damage_; }
 
     //! @brief 投げ命中時のダメージ設定(Init前に呼ぶこと)
     ThrowablePtr SetDamage(float damage)
@@ -137,7 +140,7 @@ public:
     //! @brief 重さによる保持時間の上限取得(秒 -1で無制限)
     inline float GetLiftTime() const { return lift_time_; }
 
-    //! @brief 重さによる保持時間の上限設定(Init前に呼ぶこと 反映は ComponentPickUp 側の将来課題)
+    //! @brief 重さによる保持時間の上限設定(Init前に呼ぶこと。上限が来ると ComponentPickUp が自動で投げる。上限はプレイヤーのパワーで伸びる)
     ThrowablePtr SetLiftTime(float time)
     {
         lift_time_ = time;

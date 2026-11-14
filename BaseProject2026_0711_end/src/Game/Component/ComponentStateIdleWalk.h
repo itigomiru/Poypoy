@@ -25,6 +25,12 @@ public:
     inline const void  SetFrontRotate(float rotate) { front_rot_ = rotate; }
     inline const float GetFrontRotate() const { return front_rot_; }
 
+    //! @brief 移動入力の方向反転設定(押した方向と逆に動く。反転アイテム等の操作混乱デバフ用。セーブ対象外)
+    void SetMoveInputReversed(bool reversed) { flip_dir_ = reversed; }
+
+    //! @brief 移動入力が反転しているか
+    bool IsMoveInputReversed() const { return flip_dir_; }
+
     void GUI() override;
 
 private:
@@ -36,7 +42,8 @@ private:
     int key_left_  = KEY_INPUT_A;
     int key_right_ = KEY_INPUT_D;
 
-    float front_rot_ = 0.0f;    //!<前方ベクトルの回転角度(0-360度)
+    float front_rot_ = 0.0f;      //!<前方ベクトルの回転角度(0-360度)
+    bool  flip_dir_  = false;     //!< 移動入力の方向が反転しているか(前後左右すべて。操作混乱デバフ。セーブ対象外)
 
     //--------------------------------------------------------------------
     //! @name Cereal処理

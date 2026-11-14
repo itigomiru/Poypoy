@@ -84,6 +84,10 @@ public:
     //! @return 攻撃判定が有効か
     bool IsArmed() const { return armed_; }
 
+    //! @brief 持ち上げ状態かを取得
+    //! @return 誰かに所持されているならtrue
+    bool IsHeld() const { return held_; }
+
     //! @brief 投げた者の設定(爆風で投げ主を攻撃しないための識別用)
     //! @param thrower 投げた者
     void SetThrower(const std::weak_ptr<Object>& thrower) { thrower_ = thrower; }

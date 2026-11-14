@@ -6,6 +6,12 @@
 #include "PoyPoy_Spawner.h"
 #include "PoyPoy_Crystal.h"
 #include "PoyPoy_SmallCrystal.h"
+#include "PoyPoy_Rock.h"
+#include "PoyPoy_Crate.h"
+#include "PoyPoy_FlipInputItem.h"
+#include "PoyPoy_PowerUpItem.h"
+#include "PoyPoy_SpeedUpItem.h"
+#include "PoyPoy_HealItem.h"
 #include <System/VectorMath.h>
 
 namespace PoyPoy {
@@ -20,9 +26,15 @@ bool Spawner::Init()
     // スポーン源だと分かるようにPrimitiveの輪(トロサウ)。カメラは常に下から見るので真円に見える。
     AddComponent<ComponentModel>("data/Game/Models/Primitive/Ring.x")->SetScaleAxisXYZ(1.0f);
 
-    // 生成する種類(Crystal と SmallCrystal をランダムに選ぶ)
+    // 生成する種類(Crystal と SmallCrystal と Rock と Crate と Buff系 をランダムに選ぶ)
     spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<Crystal>(); });
     spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<SmallCrystal>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<Rock>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<Crate>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<FlipInputItem>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<PowerUpItem>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<SpeedUpItem>(); });
+    spawn_types_.push_back([]() -> ObjectPtr { return Scene::Object::Create<HealItem>(); });
 
     target_     = RandomTarget();
     spawn_left_ = RandomInterval();

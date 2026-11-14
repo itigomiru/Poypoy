@@ -3,6 +3,7 @@
 #include <Game/Component/ComponentKnockback.h>
 #include <Game/Component/ComponentCrouch.h>
 #include <Game/Component/ComponentDodge.h>
+#include <Game/PoyPoy_Character.h>
 
 void ComponentStateIdleWalk::Init()
 {
@@ -55,8 +56,16 @@ void ComponentStateIdleWalk::Update()
         // その方向の移動スピードを1とし、スピードを掛け合わせる
         dir = normalize(dir);
 
-        // しゃがみ中は移動速度を倍率で落とす
+        // 方向反転デバフ中なら押した方向と逆に動く(前後左右すべて180度反転)
+        if(flip_dir_)
+            dir = -dir;
+
+        // 移動速度はキャラクターの「素早さ」ステータスに追随させる(足速バフアイテムがステータスへ効くため)
         float speed = move_speed_;
+        if(auto character = std::dynamic_pointer_cast<PoyPoy::Character>(GetOwnerPtr()))
+            speed = character->GetMoveSpeed();
+
+        // しゃがみ中は移動速度を倍率で落とす
         if(auto crouch = owner->GetComponent<ComponentCrouch>()) {
             if(crouch->IsCrouching())
                 speed *= crouch->GetMoveScale();

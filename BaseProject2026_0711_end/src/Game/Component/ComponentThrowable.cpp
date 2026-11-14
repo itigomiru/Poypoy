@@ -2,6 +2,8 @@
 #include "ComponentThrowable.h"
 #include <Game/PoyPoy_Throwable.h>
 #include <System/Component/ComponentCollisionCapsule.h>
+#include <System/Component/ComponentCollisionSphere.h>
+#include <System/Component/ComponentCollisionBox.h>
 #include <fstream>
 #include <cmath>
 
@@ -22,11 +24,11 @@ void ComponentThrowable::Init()
     // シーンに設定された値をコリジョンに反映する
     ApplySettings();
 
-    // オーナーのカプセルコリジョンに当たり処理を仕掛ける
-    auto capsule = owner_->GetComponent<ComponentCollisionCapsule>();
-    if(capsule) {
+    // オーナーのコリジョンに当たり処理を仕掛ける(カプセル・ボックス両対応。Rockはボックス)
+    auto collision = owner_->GetComponent<ComponentCollision>();
+    if(collision) {
         std::weak_ptr<ComponentThrowable> weak = std::dynamic_pointer_cast<ComponentThrowable>(shared_from_this());
-        capsule->OnHitFunc                     = [weak](const ComponentCollision::HitInfo& hit_info) {
+        collision->OnHitFunc                    = [weak](const ComponentCollision::HitInfo& hit_info) {
             if(auto self = weak.lock())
                 self->OnContact(hit_info);
         };
@@ -37,7 +39,13 @@ void ComponentThrowable::Update()
 {
     __super::Update();
 
-    owner_->GetComponent<ComponentCollisionCapsule>()->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
+    // オーナーのコリジョンのグループは常にTHROWABLE(カプセル・スフィア・ボックス対応。Rockはスフィア)
+    if(auto capsule = owner_->GetComponent<ComponentCollisionCapsule>())
+        capsule->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
+    else if(auto sphere = owner_->GetComponent<ComponentCollisionSphere>())
+        sphere->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
+    else if(auto box = owner_->GetComponent<ComponentCollisionBox>())
+        box->SetCollisionGroup(ComponentCollision::CollisionGroup::THROWABLE);
 
     // 攻撃判定は当たったフレームのノックバック処理より先に消えないよう、Updateのこの時点(当たり処理の前)で消す
     if(disarm_pending_) {
@@ -64,6 +72,22 @@ void ComponentThrowable::Update()
 
     // 重力を速度に加える
     velocity_ += float3(0.0f, -gravity_accel_, 0.0f) * dt;
+
+    // 接地中は地面摩擦を毎フレームの水平速度に掛ける
+    // (接触ハンドラ内の摩擦だけでは接触が途切れたフレームは減速せず、ボックス等はいつまでも滑り続ける)
+    if(was_grounded) {
+        float damp = 1.0f - friction_ * dt;
+        if(damp < 0.0f)
+            damp = 0.0f;
+        velocity_.x *= damp;
+        velocity_.z *= damp;
+
+        // 摩擦で止まりかけた微小な横滑りは0にして確実に静止させる
+        if(sqrtf(velocity_.x * velocity_.x + velocity_.z * velocity_.z) < 0.5f) {
+            velocity_.x = 0.0f;
+            velocity_.z = 0.0f;
+        }
+    }
 
     // 速度ぶん移動する
     owner_->SetTranslate(owner_->GetWorldMatrix().translate() + velocity_ * dt);
@@ -115,12 +139,13 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
 
     dbg_contacts_++;
 
-    auto capsule = std::dynamic_pointer_cast<ComponentCollisionCapsule>(hitInfo.collision_);
-    if(!capsule)
+    // 投げ物のコリジョン(カプセル・スフィア・ボックス。形状を問わず基底型で扱う)
+    auto collision = std::dynamic_pointer_cast<ComponentCollision>(hitInfo.collision_);
+    if(!collision)
         return;
 
     // オーバーラップ設定の相手は素通りさせる
-    if(capsule->IsOverlap(hitInfo.hit_collision_->GetCollisionGroup()) || hitInfo.hit_collision_->IsOverlap(capsule->GetCollisionGroup()))
+    if(collision->IsOverlap(hitInfo.hit_collision_->GetCollisionGroup()) || hitInfo.hit_collision_->IsOverlap(collision->GetCollisionGroup()))
         return;
 
     // 実ヒットした攻撃判定はこの当たりフレームの終わりで消す
@@ -133,7 +158,7 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
     // 渡されたpush_は質量按分されて減るので、100%分のめり込み量を自分で調べる。
     // エンジンが既に位置補正を済ませていると計測値は0になるため、その場合は
     // dispatch時点の当たりベクトル、それも0なら直前の接触法線で接地として扱う
-    ComponentCollision::HitInfo probe = capsule->IsHit(hitInfo.hit_collision_);
+    ComponentCollision::HitInfo probe = collision->IsHit(hitInfo.hit_collision_);
 
     float3 src{};
     float  len = 0.0f;
@@ -191,15 +216,25 @@ void ComponentThrowable::OnContact(const ComponentCollision::HitInfo& hitInfo)
     if(normal.y > 0.5f) {
         grounded_ = true;
 
-        // 押し出し後のカプセル下面の位置を地面の高さとして記録する
-        auto   col_cmp = owner_->GetComponent<ComponentCollisionCapsule>();
-        matrix m       = owner_->GetWorldMatrix();
-        float3 pos     = m.translate().xyz;
-        float3 axis    = normalize((float3&)m.axisVectorY());
-        float  drop    = axis.y * col_cmp->GetHeight();
-        if(drop > 0.0f)
-            drop = 0.0f;
-        ground_height_ = pos.y + drop - col_cmp->GetRadius();
+        // 押し出し後のコリジョン下面の位置を地面の高さとして記録する(カプセル・ボックスで形状計算が違う)
+        float  pos_y   = owner_->GetWorldMatrix().translate().y;
+        float  bottom  = 0.0f;    //!< 形状の中心から下面までの距離(マイナス)
+        if(auto capsule = std::dynamic_pointer_cast<ComponentCollisionCapsule>(collision)) {
+            matrix m    = owner_->GetWorldMatrix();
+            float3 axis = normalize((float3&)m.axisVectorY());
+            float  drop = axis.y * capsule->GetHeight();
+            if(drop > 0.0f)
+                drop = 0.0f;
+            bottom = drop - capsule->GetRadius();
+        }
+        else if(auto sphere = std::dynamic_pointer_cast<ComponentCollisionSphere>(collision)) {
+            bottom = -sphere->GetRadius() * owner_->GetScaleAxisXYZ().y;
+        }
+        else if(auto box = std::dynamic_pointer_cast<ComponentCollisionBox>(collision)) {
+            // Boxは当たり判定上 GetSize() が半サイズなので下面は -size.y ぶん
+            bottom = -box->GetSize().y * owner_->GetScaleAxisXYZ().y;
+        }
+        ground_height_ = pos_y + bottom;
     }
 }
 
@@ -279,9 +314,13 @@ void ComponentThrowable::Throw(const float3& dir)
 
 void ComponentThrowable::ApplySettings()
 {
-    auto capsule = owner_->GetComponent<ComponentCollisionCapsule>();
-    if(capsule)
+    // 重さをコリジョンの質量に反映(カプセル・スフィア・ボックス対応)
+    if(auto capsule = owner_->GetComponent<ComponentCollisionCapsule>())
         capsule->SetMass(weight_);
+    else if(auto sphere = owner_->GetComponent<ComponentCollisionSphere>())
+        sphere->SetMass(weight_);
+    else if(auto box = owner_->GetComponent<ComponentCollisionBox>())
+        box->SetMass(weight_);
 }
 
 CEREAL_REGISTER_TYPE(ComponentThrowable)

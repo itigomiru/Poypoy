@@ -168,8 +168,10 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
     if(crouching)
         return;
 
-    // 投げ物の速度によらず常に同じ強さ(knock_speed_)でノックバックする
-    knock_velocity_ = vel * (knock_speed_ / speed);
+    // 投げ物の速度によらず常に同じ強さ(knock_speed_×倍率)でノックバックする
+    // 爆弾は投げ物側のGetKnockbackScale()で直撃ノックバックも2倍(爆風側も同倍率)
+    const float scale = thrower ? thrower->GetKnockbackScale() : 1.0f;
+    knock_velocity_ = vel * (knock_speed_ * scale / speed);
 
     // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
     knocking_ = true;
@@ -177,7 +179,7 @@ void ComponentKnockback::OnKnockHit(const ComponentCollision::HitInfo& hitInfo)
         col->SetCollisionStatus(ComponentCollision::CollisionBit::DisableHit, true);
 }
 
-void ComponentKnockback::KnockBack(const float3& away_dir)
+void ComponentKnockback::KnockBack(const float3& away_dir, float scale)
 {
     // 直撃と同じく、ノックバック中・無敵時間中は受け付けない
     if(knocking_ || invincible_left_ > 0.0f || dodge_invincible_left_ > 0.0f)
@@ -194,8 +196,8 @@ void ComponentKnockback::KnockBack(const float3& away_dir)
     if(len <= 0.01f)
         return;
 
-    // 爆風に吹っ飛ぶ。投げ物速度と無関係に一定の強さ(knock_speed_)で押される
-    knock_velocity_ = dir * (knock_speed_ / len);
+    // 爆風に吹っ飛ぶ。投げ物速度と無関係に一定の強さ(knock_speed_×scale)で押される
+    knock_velocity_ = dir * (knock_speed_ * scale / len);
 
     // ノックバック中は当たり判定なしにして、もう一度当たったり押されたりしないようにする
     knocking_ = true;

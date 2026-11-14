@@ -18,6 +18,20 @@
 #include <System/VectorMath.h>
 
 namespace PoyPoy {
+//! @brief 移動入力の方向反転設定(押した方向と逆に動く。反転アイテム等の操作混乱デバフ用)
+void Player::SetInputReversed(bool reversed)
+{
+    if(auto walk = GetComponent<ComponentStateIdleWalk>())
+        walk->SetMoveInputReversed(reversed);
+}
+
+//! @brief 移動入力の方向が反転中か
+bool Player::IsInputReversed() const
+{
+    if(auto walk = GetComponent<ComponentStateIdleWalk>())
+        return walk->IsMoveInputReversed();
+    return false;
+}
 //! @brief 初期化
 //! @return 初期化終了
 bool Player::Init()

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "effekseer-ai": {
+      "type": "local",
+      "command": [
+        "F:\\SatoKoki\\teamProject\\PPP\\BaseProject2026_0711_end\\tools\\effekseer-ai\\.venv\\Scripts\\effekseer-ai-mcp.exe"
+      ],
+      "environment": {
+        "EFFEKSEER_AI_BIN_DIR": "F:\\SatoKoki\\teamProject\\PPP\\BaseProject2026_0711_end\\tools\\Effekseer1.80.8Win\\Tool\\bin"
+      },
+      "enabled": true
+    }
+  }
+}

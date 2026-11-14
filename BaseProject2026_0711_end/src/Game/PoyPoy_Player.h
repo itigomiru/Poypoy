@@ -19,6 +19,12 @@ public:
 
     void OnHit(const ComponentCollision::HitInfo& hitInfo);
 
+    //! @brief 移動入力の方向反転設定(押した方向と逆に動く。反転アイテム等の操作混乱デバフ用)
+    void SetInputReversed(bool reversed);
+
+    //! @brief 移動入力の方向が反転中か
+    bool IsInputReversed() const;
+
 private:
 };
 }    // namespace PoyPoy

@@ -54,7 +54,8 @@ public:
 
     //! @brief 爆風で吹き飛ばす(爆弾側から呼ぶ。爆心から離れる方向へ直撃と同じノックバックを適用)
     //! @param away_dir 爆心から対象へ向かう世界空間方向
-    void KnockBack(const float3& away_dir);
+    //! @param scale    強さの倍率(爆弾の爆風は2倍)
+    void KnockBack(const float3& away_dir, float scale = 1.0f);
 
     //! @brief ノックバック終了後の無敵時間の設定
     //! @param time 無敵時間(秒)

@@ -34,7 +34,9 @@ bool ThrowableObject::Init()
         ->SetHitCollisionGroup((u32)ComponentCollision::CollisionGroup::GROUND | (u32)ComponentCollision::CollisionGroup::WALL |
                                (u32)ComponentCollision::CollisionGroup::PLAYER |
                                (u32)ComponentCollision::CollisionGroup::ENEMY |
-                               (u32)ComponentCollision::CollisionGroup::THROWABLE);
+                               (u32)ComponentCollision::CollisionGroup::THROWABLE |
+                               // ETC(爆風)にも当たりを設定し、Blast側のオーバーラップで爆風がボムに当たる誘爆を検出できるようにする
+                               (u32)ComponentCollision::CollisionGroup::ETC);
 
     SetRotationAxisXYZ({90.0f, 0.0f, 0.0f});
     // 重力・投げる挙動(初速度・重さ・バウンド・摩擦)は ComponentThrowable がベースの設定値を受けて扱う
